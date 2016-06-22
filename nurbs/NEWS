@@ -1,0 +1,46 @@
+Summary of important user-visible changes for nurbs 1.3.8:
+-------------------------------------------------------------------
+
+ * inst/nrbexport: export multipatch geometries
+
+Summary of important user-visible changes for nurbs 1.3.8:
+-------------------------------------------------------------------
+
+ * inst/nrbkntremove.m: added new function
+
+ * inst/nrbunclamp.m: added new function
+
+ * inst/nrbmak.m: adapted for unclamped knot vector
+
+ * inst/nrbplot.m: adapted for unclamped knot vector
+
+ * inst/nrbkntplot.m: adapted for unclamped knot vector
+
+ * inst/nrb2iges: added new function
+
+ * inst/nrbmultipatch: added new function
+
+Summary of important user-visible changes for nurbs 1.3.7:
+-------------------------------------------------------------------
+
+ ** 1.3.7 is mainly a maintainance release to distribute small bug fixes 
+    that accumulated over time.
+
+ * inst/nrbpermute.m: added new function
+
+ * inst/nrbreverse.m: each direction can now be reversed independently
+
+ * inst/nrbkntplot.m: now works for non-unitary interval
+
+ * inst/nrbcrvderiveval: code vectorized 
+
+ * inst/nrbplot: fixed bug in affecting plot of trivariate nurbs, now works for 
+   non-unitary intervals 
+
+ * inst/nrbctrplot.m: plot the points only once
+
+ * src/*.cc: avoid use of deprecated array constructors
+
+
+ 
+ 

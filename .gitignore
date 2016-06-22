@@ -1,0 +1,6 @@
+*.vtk
+*.vtu
+*.asv
+*.m~
+.DS_Store
+
