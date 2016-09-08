@@ -19,8 +19,8 @@ left_nodes = 1:(p+1):(1+(p+1)*(q+1)*(r+1)-p);
 for indexPatch = 1:3
     for i=1:length(PHTelem{indexPatch})
         if isempty(PHTelem{indexPatch}(i).children)
-            if isempty(PHTelem{indexPatch}(i).neighbor_left)
-                bcdof_fixed = [bcdof_fixed, PHTelem{indexPatch}(i).nodesGlobal(left_nodes)];
+            if isempty(PHTelem{indexPatch}(i).neighbor_right)
+                bcdof_fixed = [bcdof_fixed, PHTelem{indexPatch}(i).nodesGlobal(right_nodes)];
             end
         end
     end
@@ -29,8 +29,8 @@ end
 for indexPatch = 7:9   
     for i=1:length(PHTelem{indexPatch})
         if isempty(PHTelem{indexPatch}(i).children)
-            if isempty(PHTelem{indexPatch}(i).neighbor_right)
-                bcdof_fixed = [bcdof_fixed, PHTelem{indexPatch}(i).nodesGlobal(right_nodes)];
+            if isempty(PHTelem{indexPatch}(i).neighbor_left)
+                bcdof_fixed = [bcdof_fixed, PHTelem{indexPatch}(i).nodesGlobal(left_nodes)];
             end
         end
     end

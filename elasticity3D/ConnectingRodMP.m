@@ -6,15 +6,16 @@
 close all
 clear all
 
-p = 5;
-q = 5;
-r = 5;
+p = 3;
+q = 3;
+r = 3;
 
 numPatches = 25;
 
 tic
 target_rel_error = 1e-3;
 targetScale = 0.5;
+resultsArray = [];
 addpath ./PHTutils
 addpath ./ExampleData
 
@@ -24,7 +25,7 @@ L = 1;  %length of the domain
 W = 1;  %width of the domain
 H = 1;  %height of the domain
 
-E0           = 2e5;  % Young's modulus
+E0           = 4e5;  % Young's modulus
 nu0          = 0.3;  % Poisson's ratio
 bound_press = 1;   %imposed displacement on the boundary
 
@@ -44,7 +45,7 @@ octupleList = cell(numPatches,1);
 PHTelem = cell(numPatches, 1);
 for i=1:numPatches
     [PHTelem{i}, dimBasis(i)] = initPHTmesh3D(p,q,r);
-    octupleList{i} = 2:9;    
+    octupleList{i} = 2:9;
 end
 
 patchBoundaries = {1, 2, 6, 5; 2, 3, 6, 5; 1, 4, 2, 4; 3, 6, 2, 4; [4,2,6],5,[6,2,5],[5,4,6]; 4,7,2,4; 6,9,2,4; [7,5,9],8,[6,2,5],[5,4,6]; 5,10,3,4;...
@@ -58,17 +59,21 @@ num_steps = 0;
 while keep_refining
     num_steps = num_steps + 1;
     toc
+    datetime
     disp(['Step ', num2str(num_steps)])
     
-    plotPHTMesh3DMP(PHTelem, GIFTmesh)
+    % plotPHTMesh3DMP(PHTelem, GIFTmesh)
     
     [ PHTelem, dimBasis, octupleList ] = checkConforming3D( PHTelem, dimBasis, patchBoundaries, p, q, r, octupleList );
-
-    [ PHTelem, sizeBasis ] = zipConforming3D( PHTelem, dimBasis, patchBoundaries, p, q, r);        
-
+    
+    [ PHTelem, sizeBasis ] = zipConforming3D( PHTelem, dimBasis, patchBoundaries, p, q, r);
+    
     
     sizeBasis
-  
+    if sizeBasis>6e5
+        error('Reached 1.8M DOFS... good bye!')
+    end
+    
     %
     toc
     %assemble the linear system
@@ -84,47 +89,51 @@ while keep_refining
     
     toc
     disp('Solving the linear system...')
-   % sol0 = stiff\rhs;
-%     M1=spdiags(1./sqrt(diag(stiff)),0,size(stiff,1),size(stiff,2));
-%     LHS = M1*stiff*M1;
+    % sol0 = stiff\rhs;
+    M1=spdiags(1./sqrt(diag(stiff)),0,size(stiff,1),size(stiff,2));
+    toc
+    stiff = M1*stiff*M1;
     
     
-    alpha = max(sum(abs(stiff),2)./diag(stiff))-2
+    %alpha = max(sum(abs(stiff),2)./diag(stiff))-2
+    alpha=10
     L1 = ichol(stiff, struct('type','ict','droptol',1e-3,'diagcomp',alpha));
-    [sol0,fl1,rr1,it1,rv1] = pcg(stiff,rhs,1e-14,num_steps*1000,L1,L1');
+    toc
+    [sol0,fl1,rr1,it1,rv1] = pcg(stiff,M1*rhs,1e-14,num_steps*1000,L1,L1');
+    sol0 = M1*sol0;
     fprintf('PCG exited with flag %d\n', fl1)
     fprintf('Residual value: %1.15g\n', rr1)
     fprintf('Number of iterations: %d\n', it1)
-    %sol0 = M1*sol0;
     
     toc
-    vtuFile = ['ConnectingRodSol_p=',num2str(p),'_step',num2str(num_steps),'.vtu'];
-    plotStressDisp3DVM_20pt(PHTelem, GIFTmesh, sol0, p, q, r, Cmat, vtuFile)
+    vtuFile = ['ConnectingRodSolutionNoGap20_p=',num2str(p),'_step',num2str(num_steps),'.vtu'];
+    plotStressDisp3DVM_20pt(PHTelem, GIFTmesh, sol0, p, q, r, Cmat, vtuFile,0)
     toc
-
     
-    % error estimation
-    [octupleRef, estErrorGlobTotal, estError] = recoverDerivEstGalMPAll(PHTelem, GIFTmesh, sol0, target_rel_error, octupleList, p, q, r, Cmat, targetScale);
+    [octupleRef,estErrorGlobTotal]=recoverDerivEstGalMPDorfler(PHTelem, GIFTmesh, sol0, octupleList, p, q, r, Cmat, targetScale);
     estErrorGlobTotal
-       
+    resultsArray = [resultsArray; p, length(sol0), estErrorGlobTotal]
+    resultFile = ['ConnectingRodResult_p=',num2str(p),'_step',num2str(num_steps),'.mat'];
+    save(resultFile, 'resultsArray')
+    
     %adaptive refinement
     indexOctuple = cell(1, numPatches);
     keep_ref = ones(1, numPatches);
     for patchIndex = 1:numPatches
         indexOctuple{patchIndex} = find(octupleRef{patchIndex} > 0);
-
+        
         if isempty(indexOctuple{patchIndex}) || (estErrorGlobTotal < target_rel_error)
             disp(['Done refining in geometric patch ', num2str(patchIndex), ' after ',num2str(num_steps), ' steps!'])
             keep_ref(patchIndex) = 0;
         else
             numNewOctuples = length(indexOctuple{patchIndex});
-            toc       
+            toc
             disp(['In geometric patch ', num2str(patchIndex), ' refining ',num2str(numNewOctuples), ' octuples out of ', num2str(size(octupleList{patchIndex},1))])
             [octupleList{patchIndex}, PHTelem{patchIndex}, dimBasis(patchIndex)] = refineMesh3D(octupleRef{patchIndex}, octupleList{patchIndex}, PHTelem{patchIndex}, p, q, r, dimBasis(patchIndex));
-        end    
+        end
     end
     
-    %stop refinment if the sum of keep_ref is zero. 
+    %stop refinment if the sum of keep_ref is zero.
     keep_refining=sum(keep_ref);
     toc
 end

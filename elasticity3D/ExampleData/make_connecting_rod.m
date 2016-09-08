@@ -3,7 +3,7 @@
 close all
 
 %big end
-addpath ..\nurbs\inst
+addpath ../nurbs/inst
 rad_int = 26.7;
 rad_ext = 35.6;
 height_conn = 25; %height of the junction with the 2nd patch
