@@ -48,9 +48,10 @@ for i=1:numPatches
     octupleList{i} = 2:9;
 end
 
-patchBoundaries = {1, 2, 6, 5; 2, 3, 6, 5; 1, 4, 2, 4; 3, 6, 2, 4; [4,2,6],5,[6,2,5],[5,4,6]; 4,7,2,4; 6,9,2,4; [7,5,9],8,[6,2,5],[5,4,6]; 5,10,3,4;...
+patchBoundaries = {1, 2, 6, 5; 2, 3, 6, 5; 1, 4, 4, 2; 3, 6, 4, 2; [4,2,6],5,[6,4,5],[5,2,6]; 4,7,4,2; 6,9,4,2; [7,5,9],8,[6,4,5],[5,2,6]; 5,10,3,4;...
     10,11,2,3;11,16,5,6;11,21,6,5;16,17,2,4;21,22,2,4;[17,11,22],12,[6,2,5],[5,4,6];17,18,2,4;22,23,2,4;[18,12,23],13,[6,2,5],[5,4,6];...
     16,20,4,2;21,25,4,2;[20,11,25],15,[6,4,5],[5,2,6];[20,18],19,[4,2],[2,4];[25,23],24,[4,2],[2,4];[19,15,24,13],14,[6,4,5,2],[5,2,6,4]};
+
 
 
 keep_refining = 1;
@@ -106,8 +107,10 @@ while keep_refining
     fprintf('Number of iterations: %d\n', it1)
     
     toc
-    vtuFile = ['ConnectingRodSolutionNoGap20_p=',num2str(p),'_step',num2str(num_steps),'.vtu'];
-    plotStressDisp3DVM_20pt(PHTelem, GIFTmesh, sol0, p, q, r, Cmat, vtuFile,0)
+    
+    vtuFile = ['ConnectingRodSol_p=',num2str(p),'_step',num2str(num_steps),'.vtu'];
+    plotStressDisp3DVM_20pt(PHTelem, GIFTmesh, sol0, p, q, r, Cmat, vtuFile, 0)
+
     toc
     
     [octupleRef,estErrorGlobTotal]=recoverDerivEstGalMPDorfler(PHTelem, GIFTmesh, sol0, octupleList, p, q, r, Cmat, targetScale);

@@ -49,8 +49,17 @@ for indexPatch=1:numPatches
             q_loc = 7;
             knotU = [zeros(1,p_loc+1),1/2,ones(1,p_loc+1)];
             knotV = [zeros(1,q_loc+1),1/2,ones(1,q_loc+1)];
+        elseif p==6
+            p_loc = 6;
+            q_loc = 6;
+            knotU = [zeros(1,p_loc+1),1/2,ones(1,p_loc+1)];
+            knotV = [zeros(1,q_loc+1),1/2,ones(1,q_loc+1)];            
+        elseif p==7
+            p_loc = 7;
+            q_loc = 7;
+            knotU = [zeros(1,p_loc+1),1/2,ones(1,p_loc+1)];
+            knotV = [zeros(1,q_loc+1),1/2,ones(1,q_loc+1)];          
         end
-        
         
         
         lenU = length(knotU)-p_loc-1;  %number of basis functions in the u direction
@@ -131,8 +140,10 @@ for indexPatch=1:numPatches
                 
                 Ce = PHTelem{indexPatch}(e_glob).C;
                 
-                [ ~, dxdxi] = paramMap( GIFTmesh{indexPatch}, u_hat, v_hat, xmin, ymin, xmax, ymax);
+                [ coord, dxdxi] = paramMap( GIFTmesh{indexPatch}, u_hat, v_hat, xmin, ymin, xmax, ymax);
                 [~, dR] = phtBasis(u_hat, v_hat, Ce, p, q);
+%                 plot(coord(1),coord(2),'.r','MarkerSize',15)
+%                 hold on
                 %  dR
                 %  dxdxi
                 nument = size(PHTelem{indexPatch}(e_glob).C,1); %number of basis functions with support on current knotspan
@@ -260,4 +271,3 @@ for i=1:numQuads
         break
     end
 end
-

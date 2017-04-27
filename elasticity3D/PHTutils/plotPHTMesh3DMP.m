@@ -1,12 +1,14 @@
-function  plotPHTMesh3DMP( PHTelem, GIFTmesh )
+function  plotPHTMesh3DMP( PHTelem, GIFTmesh, numPts )
 %plots the elements stored in PHTelem structure array
 %supports multipatches
 
 
 %we define colors for up to 6 patches
 colorArray = {'blue', 'red', 'green', 'cyan', 'magenta', 'black'};
-
-numPts = 3; %number of plot points to use on each edge
+if nargin<3
+    numPts = 3; %number of plot points to use on each edge
+end
+    
 uref = linspace(-1,1,numPts);
 vref = linspace(-1,1,numPts);
 wref = linspace(-1,1,numPts);

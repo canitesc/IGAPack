@@ -50,8 +50,6 @@ newVertexA = setdiff(vertexB, vertexA,'rows');
 vertexA = [0, 0; vertexA];
 vertexB = [0, 0; vertexB];
 
-
-
 toleq =0;
 
 %find the elements and octuples in A that need to be refined

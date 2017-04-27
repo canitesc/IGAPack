@@ -53,7 +53,16 @@ elseif strcmp(object_type, 'horseshoe')
     load('horse.mat')
     
     [ GIFTmesh ] = genGIFTmesh3D(horse.knots{1}, horse.knots{2}, horse.knots{3}, horse.coefs, p, q, r, numberElementsU, numberElementsV, numberElementsW);
-    
+elseif strcmp(object_type, 'blade')
+    numberElementsU = 10;
+    numberElementsV = 20;
+    numberElementsW = 1;
+    p = 2;
+    q = 2;
+    r = 1;
+    load('blade.mat')
+    [ GIFTmesh ] = genGIFTmesh3D(blade.knots{1}, blade.knots{2}, blade.knots{3}, blade.coefs, p, q, r, numberElementsU, numberElementsV, numberElementsW);
+
     
 elseif strcmp(object_type, 'hemisphere')
     numberElementsU = 1;

@@ -111,13 +111,17 @@ if (iscell (nurbs.knots))
  elseif (size (nurbs.knots,2) == 3) % plot the boundaries of a NURBS volume
   bnd = nrbextract (nurbs);
   hold_flag = ishold;
-  nrbplot (bnd(1), subd(2:3), varargin{:});
+  nrbplot (bnd(1), subd(2:3), varargin{:});  
+    
   hold on
-  nrbplot (bnd(2), subd(2:3), varargin{:});
-  nrbplot (bnd(3), subd([1 3]), varargin{:});
-  nrbplot (bnd(4), subd([1 3]), varargin{:});
-  nrbplot (bnd(5), subd(1:2), varargin{:});
-  nrbplot (bnd(6), subd(1:2), varargin{:});
+  nrbplot (bnd(2), subd(2:3), varargin{:});      
+  %nrbplot (bnd(3), subd([1 3]), varargin{:});  
+  nrbctrlplot(bnd(3))
+  nrbplot (bnd(4), subd([1 3]), varargin{:});    
+  nrbplot (bnd(5), subd(1:2), varargin{:});    
+  %nrbplot (bnd(6), subd(1:2), varargin{:});
+
+  
   
   if (~hold_flag)
     hold off

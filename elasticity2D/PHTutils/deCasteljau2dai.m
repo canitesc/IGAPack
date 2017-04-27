@@ -66,21 +66,40 @@ for i=1:size(Ce,1)
         temp(:,j) = [temp1'; temp2'];
     end          
     
+%     %zero out entries coresponding to new vertices
+%     for j=1:length(newVert)
+%         switch newVert(j)
+%             case 1
+%                 temp(1:q-beta,(alpha+2):2*p-alpha+1) =0;
+%             case 2
+%                 temp((beta+2):2*q-beta+1,p+alpha+2:end) = 0;
+%             case 3
+%                 temp(q+beta+2:end,(alpha+2):2*p-alpha+1) = 0;
+%             case 4
+%                 temp((beta+2):2*q-beta+1,1:p-alpha) = 0;
+%             case 5
+%                 temp((beta+2):2*q-beta+1,(alpha+2):2*p-alpha+1) = 0;
+%         end
+%     end
+    
     %zero out entries coresponding to new vertices
     for j=1:length(newVert)
         switch newVert(j)
             case 1
                 temp(1:q-beta,(alpha+2):2*p-alpha+1) =0;
             case 2
-                temp((beta+2):2*q-beta+1,p+alpha+2:end) = 0;
+                temp((beta+2):2*q-beta+1,p+alpha+3:end) = 0;
             case 3
-                temp(q+beta+2:end,(alpha+2):2*p-alpha+1) = 0;
+                temp(q+beta+3:end,(alpha+2):2*p-alpha+1) = 0;
             case 4
                 temp((beta+2):2*q-beta+1,1:p-alpha) = 0;
             case 5
                 temp((beta+2):2*q-beta+1,(alpha+2):2*p-alpha+1) = 0;
         end
-    end
+   end
+    
+    
+
     
          
     Ce1(i,:) = reshape(temp(1:q+1,1:p+1)',1,(p+1)*(q+1));

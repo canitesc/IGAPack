@@ -6,10 +6,10 @@
 close all
 clear all
 
-p = 3;
-q = 3;
+p = 4;
+q = 4;
 
-numPatches = 3;
+numPatches = 1;
 
 target_rel_error = 1e-3;
 addpath ./PHTutils
@@ -35,8 +35,9 @@ GIFTmesh = init2DGeometryGIFTMP('rectangle',L,W,numPatches);
 quadList = cell(numPatches,1);
 PHTelem = cell(numPatches, 1);
 for i=1:numPatches
-    [PHTelem{i}, dimBasis(i)] = initPHTmesh(p,q);
-    quadList{i} = 2:5;    
+    %[PHTelem{i}, dimBasis(i)] = initPHTmeshGen(p,q);
+    [ PHTelem{i}, dimBasis(i), quadList{i}] = initPHTmeshGen( p,q, 2, 2 );
+%    quadList{i} = 2:5;    
 end
 
 patchBoundaries = cell(numPatches-1, 4);
@@ -56,18 +57,19 @@ while keep_refining
     num_steps = num_steps + 1;
     toc
     disp(['Step ', num2str(num_steps)])
-    figure
-    plotPHTMeshMP(PHTelem, GIFTmesh)
+
     
     [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, patchBoundaries, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);        
+    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);       
+        figure
+    plotPHTMeshMP(PHTelem, GIFTmesh)
     sizeBasis
     toc
-    
+%    pause
     %assemble the linear system
     disp('Assembling the linear system...')
     [ stiff, rhs ] = assembleGalerkinSysGIFTMP( PHTelem, GIFTmesh, sizeBasis, p, q, Cmat);
-    
+%        pause
     %impose boundary conditions
     toc
     disp('Imposing boundary conditions...')

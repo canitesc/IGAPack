@@ -65,7 +65,8 @@ while keep_refining
     plotPHTMesh3DMP(PHTelem, GIFTmesh)
     
     [ PHTelem, dimBasis, octupleList ] = checkConforming3D( PHTelem, dimBasis, patchBoundaries, p, q, r, octupleList );
-    
+        checkConformingDist3D( PHTelem, GIFTmesh, patchBoundaries, p);
+
     [ PHTelem, sizeBasis ] = zipConforming3D( PHTelem, dimBasis, patchBoundaries, p, q, r);
     
     

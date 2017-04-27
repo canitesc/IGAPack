@@ -59,7 +59,8 @@ while keep_refining
     
     plotPHTMesh3DMP(PHTelem, GIFTmesh)
     [ PHTelem, dimBasis, octupleList ] = checkConforming3D( PHTelem, dimBasis, patchBoundaries, p, q, r, octupleList );
-    
+   % checkConformingDist3D( PHTelem, GIFTmesh, patchBoundaries, p);
+
     [ PHTelem, sizeBasis ] = zipConforming3D( PHTelem, dimBasis, patchBoundaries, p, q, r);
     sizeBasis
     %
@@ -91,12 +92,12 @@ while keep_refining
     fprintf('PCG exited with flag %d\n', fl1)    
     fprintf('Residual value: %1.15g\n', rr1)
     fprintf('Number of iterations: %d\n', it1)
-    figure;
-    semilogy(1:length(rv1),rv1/norm(rhs),'b.');
-    title('Iterative solver convergence')
-    xlabel('iteration number');
-    ylabel('relative residual');
-    drawnow
+%     figure;
+%     semilogy(1:length(rv1),rv1/norm(rhs),'b.');
+%     title('Iterative solver convergence')
+%     xlabel('iteration number');
+%     ylabel('relative residual');
+%     drawnow
     
     %   sol0=stiff\rhs;
     clear stiff L1

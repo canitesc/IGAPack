@@ -3,4 +3,7 @@
 *.asv
 *.m~
 .DS_Store
+*.pdf
+*.fig
+
 

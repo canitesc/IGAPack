@@ -28,7 +28,7 @@ W = 1;  %width of the domain
 H = 1;  %height of the domain
 
 E0           = 1e5;  % Young's modulus
-nu0          = 0.3;  % Poisson's ratio
+nu0          = 0;  % Poisson's ratio
 bound_disp = 0.1;   %imposed displacement on the boundary
 
 % Define the elasticity (compliance) matrix
@@ -46,6 +46,7 @@ GIFTmesh = init3DGeometryGIFTMP('cubeUV',L,W,H,numPatches,numPatchesU,numPatches
 octupleList = cell(numPatches,1);
 PHTelem = cell(numPatches, 1);
 for i=1:numPatches
+    
     [PHTelem{i}, dimBasis(i)] = initPHTmesh3D(p,q,r);
     octupleList{i} = 2:9;
 end

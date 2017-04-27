@@ -6,10 +6,10 @@
 close all
 clear all
 
-p = 3;
-q = 3;
+p = 4;
+q = 4;
 
-numPatches = 3;
+numPatches = 1;
 
 target_rel_error = 1e-5;
 targetScale = 0.5;
@@ -59,7 +59,7 @@ while keep_refining
     disp(['Step ', num2str(num_steps)])
     figure
     plotPHTMeshMP(PHTelem, GIFTmesh)
-    
+   % pause
     [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, patchBoundaries, p, q, quadList );
     [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);        
     sizeBasis

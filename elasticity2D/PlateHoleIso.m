@@ -8,7 +8,7 @@ clear all
 p = 3;
 q = 3;
 
-target_rel_error = 1e-5;
+target_rel_error = 1e-6;
 targetScale = 0.75;
 resultsArray =[];
 

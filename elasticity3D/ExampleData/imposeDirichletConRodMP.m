@@ -11,9 +11,7 @@ neumann_front =[];
 numPatches = length(PHTelem);
 
 %define side node indices
-%down_nodes = 1:p+1;
 right_nodes = (p+1):(p+1):(p+1)*(q+1)*(r+1);
-%up_nodes = 1+(p+1)*q:(p+1)*(q+1);
 left_nodes = 1:(p+1):(1+(p+1)*(q+1)*(r+1)-p);
 
 for indexPatch = 1:3

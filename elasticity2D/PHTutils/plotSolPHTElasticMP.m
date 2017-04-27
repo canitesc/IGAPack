@@ -1,4 +1,4 @@
-function  plotSolPHTElasticMP( sol0, PHTelem, GIFTmesh, p, q, Cmat )
+function  plotSolPHTElasticMP( sol0, PHTelem, GIFTmesh, p, q, Cmat, factor )
 %supports multipatches
 
 numPts = 2;
@@ -6,6 +6,12 @@ numPts = 2;
 %plots the deformed shape + stresses
 xi = linspace(-1,1,numPts);
 eta = linspace(-1,1,numPts);
+
+
+if nargin<7
+    %set a default magnification factor for the displacement
+    factor=10;
+end
 
 
 %calculate the number of actual elements (i.e., non-refined, without children)
@@ -137,7 +143,7 @@ for indexPatch = 1:numPatches
     end
 end
 
-factor = 20;
+factor = 1;
 
 figure
 trisurf(element4,physcoord(:,1)+dispcoord(:,1)*factor, physcoord(:,2)+dispcoord(:,2)*factor, zeros(size(physcoord,1),1), sigmacoord(:,1), 'EdgeColor','none','facecolor','interp')

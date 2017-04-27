@@ -2,6 +2,7 @@
 % implement the L-Shaped panel problem with PHT splines
 % implement exact solution from R. Simpson's paper/code
 % uses multipatches
+% implementation suitable for p=3 only
 
 
 close all
@@ -36,7 +37,7 @@ numPatches = 3;
 %patches 2 and 3 are connected at the down(1)-left(4) edges respectively
 patchBoundaries = {1, 2, 1, 4; 2, 3, 1, 4};
 
-
+solArray = [];
 
 tic
 
@@ -56,6 +57,12 @@ while keep_refining
     toc
     
     [ PHTelem, controlPts, dimBasis, quadList ] = checkConformingIso( PHTelem, controlPts, dimBasis, patchBoundaries, p, q, quadList );
+  
+    figure
+    plotPHTMeshIsoMP( PHTelem, controlPts, p, q )    
+    hold off
+    toc
+    
     [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);
     %sizeBasis
     toc
@@ -91,15 +98,17 @@ while keep_refining
     toc   
     disp('Estimating the error...')
     
-    quadRef = cell(1, numPatches);
-    estErrorGlob = zeros(1, numPatches);
-    
-    for patchIndex=1:numPatches
-        [quadRef{patchIndex}, estErrorGlob(patchIndex)] = recoverDerivEstGalIsoMP(PHTelem{patchIndex}, controlPts{patchIndex}, sol0, target_rel_error/numPatches, quadList{patchIndex}, p, q, Cmat, targetScale);
-    end
-    
-    estErrorGlobTotal = sum(estErrorGlob)
-    %
+%     quadRef = cell(1, numPatches);
+%     estErrorGlob = zeros(1, numPatches);
+%     
+%     for patchIndex=1:numPatches
+%         [quadRef{patchIndex}, estErrorGlob(patchIndex)] = recoverDerivEstGalIsoMP(PHTelem{patchIndex}, controlPts{patchIndex}, sol0, target_rel_error/numPatches, quadList{patchIndex}, p, q, Cmat, targetScale);
+%     end
+%     
+%     estErrorGlobTotal = sum(estErrorGlob)
+%     
+    [quadRef, estErrorGlobTotal] = recoverDerivEstGalIsoMPDorfler(PHTelem, controlPts, sol0, quadList, p, q, Cmat, targetScale);
+
     toc
     %
     
@@ -108,9 +117,9 @@ while keep_refining
 %         quadRef{patchIndex} = 1:size(quadList{patchIndex},1);
 %     end
 
-    disp('Plotting the solution...')
-    plotSolPHTElasticIsoMP( sol0, PHTelem, controlPts, p, q, Cmat )
-    
+   % disp('Plotting the solution...')
+   % plotSolPHTElasticIsoMP( sol0, PHTelem, controlPts, p, q, Cmat )
+
     toc
     %calculate the error norms
     disp('Calculating error norms...')
@@ -118,7 +127,7 @@ while keep_refining
     l2relerr
     h1relerr
     disp(['Effectivity index: ',num2str(estErrorGlobTotal/h1relerr)])
-    
+    solArray = [solArray; length(sol0), l2relerr, h1relerr, estErrorGlobTotal];
     %adaptive refinement
     indexQuad = cell(1, numPatches);
     keep_ref = ones(1, numPatches);

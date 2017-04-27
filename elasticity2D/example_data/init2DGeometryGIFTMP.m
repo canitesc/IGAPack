@@ -129,6 +129,33 @@ elseif strcmp(object_type, 'plate_holeC1')
         end
     end
     GIFTmesh{1} =  genGIFTmesh( knotU, knotV, coefs, p, q, numberElementsU, numberElementsV );
+elseif strcmp(object_type, 'thick_cylinder')    
+    p=1;
+    q=2;
+    numberElementsU = 1;
+    numberElementsV = 1;
+    rad_int = 1;
+    rad_ext = 4;
+    
+    %initialize geometry on coarsest mesh
+    coefs(1:3,1,1) = rad_int*[1;0;0];
+    coefs(1:3,1,2) = rad_int*[sqrt(2)/2; sqrt(2)/2; 0];
+    coefs(1:3,1,3) = rad_int*[0;1;0];
+    coefs(1:3,2,1) = rad_ext*[1;0;0];
+    coefs(1:3,2,2) = rad_ext*[sqrt(2)/2;sqrt(2)/2;0];
+    coefs(1:3,2,3) = rad_ext*[0;1;0];
+    coefs(4,1,1) = 1;
+    coefs(4,1,2) = sqrt(2)/2;
+    coefs(4,1,3) = 1;
+    coefs(4,2,1) = 1;
+    coefs(4,2,2) = sqrt(2)/2;
+    coefs(4,2,3) = 1;
+    
+    knotU = [0 0 1 1];
+    knotV =  [0 0 0 1 1 1];  
+    
+    GIFTmesh{1} = genGIFTmesh( knotU, knotV, coefs, p, q, numberElementsU, numberElementsV );
+    
 elseif strcmp(object_type, 'Lshape_ex')
     %L-shaped domain with exact solution discretized with 3 patches
     numPatches = 3;
@@ -202,6 +229,159 @@ elseif strcmp(object_type, 'Lshape_ex')
     coefs(4,2,2) = 1;
     
     GIFTmesh{3} = genGIFTmesh( knotU, knotV, coefs, p, q, numberElementsU, numberElementsV );
+    
+elseif strcmp(object_type, 'Lshape_exC1')
+    numberElementsU = 2;
+    numberElementsV = 1;
+    p = 2;
+    q = 2;
+    knotU = [0, 0, 0, 0.5, 1, 1, 1];
+    knotV = [0, 0, 0, 1, 1, 1];
+    
+    coefs(1:4,1,1) = [-1;1;0;1];
+    coefs(1:4,2,1) = [-1;-1;0;1];
+    coefs(1:4,3,1) = [-1;-1;0;1];
+    coefs(1:4,4,1) = [1;-1;0;1];
+    coefs(1:4,1,2) = [-0.65; 1; 0; 1];
+    coefs(1:4,2,2) = [-0.7; 0; 0; 1];
+    coefs(1:4,3,2) = [0; -0.7; 0; 1];
+    coefs(1:4,4,2) = [1; -0.65; 0; 1];
+    coefs(1:4,1,3) = [0; 1; 0; 1];
+    coefs(1:4,2,3) = [0; 0; 0; 1];
+    coefs(1:4,3,3) = [0; 0; 0; 1];
+    coefs(1:4,4,3) = [1; 0; 0; 1];
+    
+    surf = nrbmak(coefs, {knotU, knotV});
+    rotMat = vecrotz(3*pi/4);
+    surf = nrbtform(surf, rotMat);
+    coefs = surf.coefs;
+    
+    
+    GIFTmesh{1} = genGIFTmesh( knotU, knotV, coefs, p, q, numberElementsU, numberElementsV );
+    
+    
+elseif strcmp(object_type, 'CantileverBeam')
+    GIFTmesh = cell(numPatches,1);
+    numberElementsU = 1;
+    numberElementsV = 1;
+    p = 1;
+    q = 1;
+    
+    %patch 1
+    
+    %set the dimensions of the patch
+    patchMinX = 0;
+    patchMaxX = W;
+    patchMinY = 2*W;
+    patchMaxY = 3*W;
+    
+    %initialize geometry on coarsest mesh
+    coefs(1:3,1,1) = [patchMinX; patchMinY; 0];
+    coefs(1:3,1,2) = [patchMinX; patchMaxY; 0];
+    coefs(1:3,2,1) = [patchMaxX; patchMinY; 0];
+    coefs(1:3,2,2) = [patchMaxX; patchMaxY; 0];
+    coefs(4,1,1) = 1;
+    coefs(4,1,2) = 1;
+    coefs(4,2,1) = 1;
+    coefs(4,2,2) = 1;
+    
+    knotU = [0 0 1 1];
+    knotV = [0 0 1 1];
+    
+    GIFTmesh{1} = genGIFTmesh( knotU, knotV, coefs, p, q, numberElementsU, numberElementsV );
+    
+    %patch 2
+    
+    %set the dimensions of the patch
+    patchMinX = 0;
+    patchMaxX = W;
+    patchMinY = W;
+    patchMaxY = 2*W;
+    
+    %initialize geometry on coarsest mesh
+    coefs(1:3,1,1) = [patchMinX; patchMinY; 0];
+    coefs(1:3,1,2) = [patchMinX; patchMaxY; 0];
+    coefs(1:3,2,1) = [patchMaxX; patchMinY; 0];
+    coefs(1:3,2,2) = [patchMaxX; patchMaxY; 0];
+    coefs(4,1,1) = 1;
+    coefs(4,1,2) = 1;
+    coefs(4,2,1) = 1;
+    coefs(4,2,2) = 1;
+    
+    knotU = [0 0 1 1];
+    knotV = [0 0 1 1];
+    
+    GIFTmesh{2} = genGIFTmesh( knotU, knotV, coefs, p, q, numberElementsU, numberElementsV );
+    
+    %patch 3
+    
+    %set the dimensions of the patch
+    patchMinX = W;
+    patchMaxX = W+L;
+    patchMinY = W;
+    patchMaxY = 2*W;
+    
+    %initialize geometry on coarsest mesh
+    coefs(1:3,1,1) = [patchMinX; patchMinY; 0];
+    coefs(1:3,1,2) = [patchMinX; patchMaxY; 0];
+    coefs(1:3,2,1) = [patchMaxX; patchMinY; 0];
+    coefs(1:3,2,2) = [patchMaxX; patchMaxY; 0];
+    coefs(4,1,1) = 1;
+    coefs(4,1,2) = 1;
+    coefs(4,2,1) = 1;
+    coefs(4,2,2) = 1;
+    
+    knotU = [0 0 1 1];
+    knotV = [0 0 1 1];
+    
+    GIFTmesh{3} = genGIFTmesh( knotU, knotV, coefs, p, q, numberElementsU, numberElementsV );
+    
+    %patch 3
+    
+    %set the dimensions of the patch
+    patchMinX = W;
+    patchMaxX = W+L;
+    patchMinY = W;
+    patchMaxY = 2*W;
+    
+    %initialize geometry on coarsest mesh
+    coefs(1:3,1,1) = [patchMinX; patchMinY; 0];
+    coefs(1:3,1,2) = [patchMinX; patchMaxY; 0];
+    coefs(1:3,2,1) = [patchMaxX; patchMinY; 0];
+    coefs(1:3,2,2) = [patchMaxX; patchMaxY; 0];
+    coefs(4,1,1) = 1;
+    coefs(4,1,2) = 1;
+    coefs(4,2,1) = 1;
+    coefs(4,2,2) = 1;
+    
+    knotU = [0 0 1 1];
+    knotV = [0 0 1 1];
+    
+    GIFTmesh{3} = genGIFTmesh( knotU, knotV, coefs, p, q, numberElementsU, numberElementsV );
+    
+    %patch 4
+    
+    %set the dimensions of the patch
+    patchMinX = 0;
+    patchMaxX = W;
+    patchMinY = 0;
+    patchMaxY = W;
+    
+    %initialize geometry on coarsest mesh
+    coefs(1:3,1,1) = [patchMinX; patchMinY; 0];
+    coefs(1:3,1,2) = [patchMinX; patchMaxY; 0];
+    coefs(1:3,2,1) = [patchMaxX; patchMinY; 0];
+    coefs(1:3,2,2) = [patchMaxX; patchMaxY; 0];
+    coefs(4,1,1) = 1;
+    coefs(4,1,2) = 1;
+    coefs(4,2,1) = 1;
+    coefs(4,2,2) = 1;
+    
+    knotU = [0 0 1 1];
+    knotV = [0 0 1 1];
+    
+    GIFTmesh{4} = genGIFTmesh( knotU, knotV, coefs, p, q, numberElementsU, numberElementsV );
+    
 elseif strcmp(object_type, 'EdgeCrackMultiPatch')
     
     GIFTmesh = cell(numPatches,1);
@@ -314,7 +494,7 @@ elseif strcmp(object_type,'LShaped_bracket')
     coefs(4,2,3) = 1;
     coefs(4,3,1) = 1;
     coefs(4,3,2) = 1;
-    coefs(4,3,3) = 1;        
+    coefs(4,3,3) = 1;
     
     GIFTmesh{1} = genGIFTmesh( knotU, knotV, coefs, p, q, numberElementsU, numberElementsV );
     
@@ -580,7 +760,7 @@ elseif strcmp(object_type,'LShaped_bracket')
     coefs(4,3,3) = 1;
     
     GIFTmesh{8} = genGIFTmesh(knotU,knotV,coefs, p, q, numberElementsU, numberElementsV );
-               
+    
     %%%%%%%%%%%%%%%%%%%%%%%%%%
     %9th patch%
     %%%%%%%%%%%%%%%%%%%%%%%%%%

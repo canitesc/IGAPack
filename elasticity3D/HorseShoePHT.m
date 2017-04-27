@@ -81,7 +81,7 @@ while keep_refining
     clear stiff L1
     toc
     vtuFile = ['HorseShoeSol',num2str(num_steps),'.vtu'];
-    plotStressDisp3DVM_20pt(PHTelem, GIFTmesh, sol0, p, q, r, Cmat, vtuFile, 1e-1)
+    plotStressDisp3DVM_20pt(PHTelem, GIFTmesh, sol0, p, q, r, Cmat, vtuFile)
     toc
     %
     %     toc

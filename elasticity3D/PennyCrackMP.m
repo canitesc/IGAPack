@@ -15,7 +15,7 @@ numPatches = 2;
 
 tic
 target_rel_error = 1e-2;
-targetScale = 1;
+targetScale = .5;
 addpath ./PHTutils
 addpath ./ExampleData
 addpath ../nurbs/inst
@@ -72,7 +72,8 @@ while keep_refining
     plotPHTMesh3DMP(PHTelem, GIFTmesh)
     
     [ PHTelem, dimBasis, octupleList ] = checkConforming3D( PHTelem, dimBasis, patchBoundaries, p, q, r, octupleList );
-    
+    %    checkConformingDist3D( PHTelem, GIFTmesh, patchBoundaries, p);
+
     [ PHTelem, sizeBasis ] = zipConforming3D( PHTelem, dimBasis, patchBoundaries, p, q, r);
     
     sizeBasis

@@ -97,14 +97,14 @@ while keep_refining
     
     toc
     disp('Solving the linear system...')
-    sol0 = stiff\rhs;
+%    sol0 = stiff\rhs;
     
-%     alpha = max(sum(abs(stiff),2)./diag(stiff))-2
-%     L1 = ichol(stiff, struct('type','ict','droptol',1e-3,'diagcomp',alpha));
-%     [sol0,fl1,rr1,it1,rv1] = pcg(stiff,rhs,1e-14,num_steps*1000,L1,L1');
-%     fprintf('PCG exited with flag %d\n', fl1)
-%     fprintf('Residual value: %1.15g\n', rr1)
-%     fprintf('Number of iterations: %d\n', it1)
+    alpha = max(sum(abs(stiff),2)./diag(stiff))-2
+    L1 = ichol(stiff, struct('type','ict','droptol',1e-3,'diagcomp',alpha));
+    [sol0,fl1,rr1,it1,rv1] = pcg(stiff,rhs,1e-14,num_steps*1000,L1,L1');
+    fprintf('PCG exited with flag %d\n', fl1)
+    fprintf('Residual value: %1.15g\n', rr1)
+    fprintf('Number of iterations: %d\n', it1)
     
     
     toc

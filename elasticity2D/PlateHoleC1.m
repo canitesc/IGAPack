@@ -5,8 +5,8 @@
 close all
 clear all
 
-p = 5;
-q = 5;
+p = 3;
+q = 3;
 
 target_rel_error = 1e-5;
 targetScale = 1;

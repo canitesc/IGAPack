@@ -100,6 +100,101 @@ elseif strcmp(object_type, 'cubeUV')
             [ GIFTmesh{patchIndex} ] = genGIFTmesh3D(knotU, knotV, knotW, coefs, p, q, r, numberElementsU, numberElementsV, numberElementsW);
         end
     end
+elseif strcmp(object_type, 'CantileverBar')
+    %the geometry for the base
+    GIFTmesh = cell(numPatches,1);
+    numberElementsU = 1;
+    numberElementsV = 1;
+    numberElementsW = 1;
+    p = 1;
+    q = 1;
+    r = 1;
+    
+    %divide the patches along the x and y directions
+    xVertices = linspace(0,L,numPatchesU+1);
+    yVertices = linspace(0,W,numPatchesV+1);
+    patchIndex = 0;
+    for patchIndexV = 1:numPatchesV
+        for patchIndexU = 1:numPatchesU
+            patchIndex = patchIndex+1;
+            %set the dimensions of the patch
+            patchMinX = xVertices(patchIndexU);
+            patchMaxX = xVertices(patchIndexU+1);
+            patchMinY = yVertices(patchIndexV);
+            patchMaxY = yVertices(patchIndexV+1);
+            patchMinZ = 0;
+            patchMaxZ = H;
+            
+            %initialize geometry on coarsest mesh
+            coefs(1:3,1,1,1) = [patchMinX; patchMinY; patchMinZ];
+            coefs(1:3,1,2,1) = [patchMinX; patchMaxY; patchMinZ];
+            coefs(1:3,2,1,1) = [patchMaxX; patchMinY; patchMinZ];
+            coefs(1:3,2,2,1) = [patchMaxX; patchMaxY; patchMinZ];
+            coefs(1:3,1,1,2) = [patchMinX; patchMinY; patchMaxZ];
+            coefs(1:3,1,2,2) = [patchMinX; patchMaxY; patchMaxZ];
+            coefs(1:3,2,1,2) = [patchMaxX; patchMinY; patchMaxZ];
+            coefs(1:3,2,2,2) = [patchMaxX; patchMaxY; patchMaxZ];
+            coefs(4,1,1,1) = 1;
+            coefs(4,1,2,1) = 1;
+            coefs(4,2,1,1) = 1;
+            coefs(4,2,2,1) = 1;
+            coefs(4,1,1,2) = 1;
+            coefs(4,1,2,2) = 1;
+            coefs(4,2,1,2) = 1;
+            coefs(4,2,2,2) = 1;
+            
+            
+            knotU = [0 0 1 1];
+            knotV = [0 0 1 1];
+            knotW = [0 0 1 1];
+            
+            [ GIFTmesh{patchIndex} ] = genGIFTmesh3D(knotU, knotV, knotW, coefs, p, q, r, numberElementsU, numberElementsV, numberElementsW);
+        end
+    end
+    %the geometry for the bar, assume 3x3 patches for the base
+    lengthBar = 10;
+    patchIndex = 10;
+    patchMinX = L/3;
+    patchMinY = W/3;
+    patchMaxX = 2*L/3;
+    patchMaxY = 2*W/3;
+    patchMinZ = H;
+    patchMaxZ = H+lengthBar;
+        
+    %initialize geometry on coarsest mesh
+    coefs(1:3,1,1,1) = [patchMinX; patchMinY; patchMinZ];
+    coefs(1:3,1,2,1) = [patchMinX; patchMaxY; patchMinZ];
+    coefs(1:3,2,1,1) = [patchMaxX; patchMinY; patchMinZ];
+    coefs(1:3,2,2,1) = [patchMaxX; patchMaxY; patchMinZ];
+    coefs(1:3,1,1,2) = [patchMinX; patchMinY; patchMaxZ];
+    coefs(1:3,1,2,2) = [patchMinX; patchMaxY; patchMaxZ];
+    coefs(1:3,2,1,2) = [patchMaxX; patchMinY; patchMaxZ];
+    coefs(1:3,2,2,2) = [patchMaxX; patchMaxY; patchMaxZ];
+    coefs(4,1,1,1) = 1;
+    coefs(4,1,2,1) = 1;
+    coefs(4,2,1,1) = 1;
+    coefs(4,2,2,1) = 1;
+    coefs(4,1,1,2) = 1;
+    coefs(4,1,2,2) = 1;
+    coefs(4,2,1,2) = 1;
+    coefs(4,2,2,2) = 1;
+    
+    
+    knotU = [0 0 1 1];
+    knotV = [0 0 1 1];
+    knotW = [0 0 1 1];
+    
+    [ GIFTmesh{patchIndex} ] = genGIFTmesh3D(knotU, knotV, knotW, coefs, p, q, r, numberElementsU, numberElementsV, numberElementsW);
+    
+    
+elseif strcmp(object_type, 'circular_plate')
+    load('circularPlate.mat')
+    GIFTmesh = cell(numPatches,1);
+    numberElementsU = 1;
+    numberElementsV = 1;
+    numberElementsW = 1;
+    [ GIFTmesh{1} ] = genGIFTmesh3D(vol.knots{1}, vol.knots{2}, vol.knots{3}, vol.coefs, vol.order(1)-1, vol.order(2)-1, vol.order(3)-1, numberElementsU, numberElementsV, numberElementsW);
+    
 elseif strcmp(object_type, 'Tbeam')
     GIFTmesh = cell(numPatches,1);
     numberElementsU = 1;
@@ -182,6 +277,40 @@ elseif strcmp(object_type, 'ConnectingRod')
     [ GIFTmesh{24} ] = genGIFTmesh3D(solidT4C.knots{1}, solidT4C.knots{2}, solidT4C.knots{3}, solidT4C.coefs, solidT4C.order(1)-1, solidT4C.order(2)-1, solidT4C.order(3)-1, numberElementsU, numberElementsV, numberElementsW);
     [ GIFTmesh{25} ] = genGIFTmesh3D(solidT5C.knots{1}, solidT5C.knots{2}, solidT5C.knots{3}, solidT5C.coefs, solidT5C.order(1)-1, solidT5C.order(2)-1, solidT5C.order(3)-1, numberElementsU, numberElementsV, numberElementsW);
     
+elseif strcmp(object_type, 'Propeller')
+    load('propeller.mat')
+    numBlades = length(hubPatches);
+    GIFTmesh = cell(10*numBlades,1);
+    knotsUHub = [0, 0, 0, 1, 1, 1];    
+    knotsVHub = [0, 0, 0, 1, 1, 1];
+    knotsWHub = [0, 0, 1, 1];
+    for i=1:numBlades
+        hubPatches{i}=nrbpermute(hubPatches{i},[1,3,2]);
+        numberElementsUHub = length(unique(hubPatches{i}.knots{1}))-1;
+        numberElementsVHub = length(unique(hubPatches{i}.knots{2}))-1;
+        %numberElementsWHub = length(unique(hubPatches{i}.knots{3}))-1;
+        hubCounter = 0;
+        for iV = 1:numberElementsVHub
+            indexLowV = 2*iV-1;
+            indexHighV = 2*iV+1;
+            for iU = 1:numberElementsUHub
+                indexLowU = 2*iU-1;
+                indexHighU = 2*iU+1;
+                hubCounter = hubCounter + 1;
+               
+                GIFTmesh{10*(i-1)+hubCounter} = genGIFTmesh3D(knotsUHub, knotsVHub, knotsWHub, hubPatches{i}.coefs(:,indexLowU:indexHighU,indexLowV:indexHighV,:), hubPatches{i}.order(1)-1, hubPatches{i}.order(2)-1, hubPatches{i}.order(3)-1, 1, 1, 1);
+            end
+        end
+
+        bladePatches{i} = nrbpermute(bladePatches{i},[1,3,2]);
+        bladePatches{i}.coefs =  bladePatches{i}.coefs(:,:,3:-1:1,3:-1:1);
+        
+        numberElementsUBlade = length(unique(bladePatches{i}.knots{1}))-1;
+        numberElementsVBlade = length(unique(bladePatches{i}.knots{2}))-1;
+        numberElementsWBlade = length(unique(bladePatches{i}.knots{3}))-1;
+
+        GIFTmesh{10*i} = genGIFTmesh3D(bladePatches{i}.knots{1}, bladePatches{i}.knots{2}, bladePatches{i}.knots{3}, bladePatches{i}.coefs, bladePatches{i}.order(1)-1, bladePatches{i}.order(2)-1, bladePatches{i}.order(3)-1, numberElementsUBlade, numberElementsVBlade, numberElementsWBlade);
+    end
     
     
 elseif strcmp(object_type, 'crackcube')
@@ -399,7 +528,7 @@ elseif strcmp(object_type, 'cube_with_hole_C0')
     nrbplot(solidNW,[nsub,nsub,nsub])
     hold on
     nrbplot(solidNE,[nsub,nsub,nsub])
-%    pause
+    %    pause
     
     
 elseif strcmp(object_type, 'LShaped_bracket')

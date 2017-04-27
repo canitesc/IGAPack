@@ -96,5 +96,6 @@ for j=1:numElemV
 end
 [ PHTelem, dimBasis ] = crossInsert( PHTelem, 1:numElements, dimBasis, p, q);
 
+%[ PHTelem, dimBasis ] = crossInsert( PHTelem, 4, dimBasis, p, q);
 
-
+%[ PHTelem, dimBasis ] = crossInsert( PHTelem, 3:6, dimBasis, p, q);

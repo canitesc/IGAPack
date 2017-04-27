@@ -41,3 +41,4 @@ PHTelem.neighbor_up = [];
 PHTelem.level = 0;
 
 [ PHTelem, dimBasis ] = crossInsert( PHTelem, 1, dimBasis, p, q );
+%[ PHTelem, dimBasis ] = crossInsert( PHTelem, 5, dimBasis, p, q );

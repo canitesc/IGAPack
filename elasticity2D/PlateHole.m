@@ -4,11 +4,12 @@
 
 close all
 clear all
+restoredefaultpath
 
-p = 5;
-q = 5;
+p = 3;
+q = 3;
 
-target_rel_error = 1e-5;
+target_rel_error = 1e-6;
 %targetScale = 1 --> uniform refinement
 %tagetScale < 1 --> more graded refinement
 targetScale = 0.75;
@@ -53,8 +54,8 @@ while keep_refining
     num_steps = num_steps + 1;
     toc
     disp(['Step ', num2str(num_steps)])
-    
-    
+  %      figure
+  %  plotPHTMeshMP( PHTelem, GIFTmesh )
     [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, patchBoundaries, p, q, quadList );
     [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);
     sizeBasis
@@ -62,6 +63,7 @@ while keep_refining
     figure
     plotPHTMeshMP( PHTelem, GIFTmesh )
     toc
+   % pause
         
     %assemble the linear system
     disp('Assembling the linear system...')
@@ -86,13 +88,13 @@ while keep_refining
     estErrorGlobTotal
     
     toc    
-    
-    disp('Plotting the error...')
-    
-    plotErrorPHTElasticPH( sol0, PHTelem, GIFTmesh, p, q, Cmat, rad, tx )
-    %
-    toc
-    
+%     
+%     disp('Plotting the error...')
+%     
+%     plotErrorPHTElasticPH( sol0, PHTelem, GIFTmesh, p, q, Cmat, rad, tx )
+%     %
+%     toc
+%     
     %calculate the error norms        
     disp('Calculating error norms...')
     [l2relerr, h1relerr] = calcErrorNormsPH( sol0, PHTelem, GIFTmesh, p, q, Cmat, Emod, nu, rad, tx );
@@ -100,6 +102,7 @@ while keep_refining
     h1relerr
 
     disp(['Effectivity index: ',num2str(estErrorGlobTotal/h1relerr)])
+%    pause
      %adaptive refinement
     indexQuad = cell(1, numPatches);
     keep_ref = ones(1, numPatches);

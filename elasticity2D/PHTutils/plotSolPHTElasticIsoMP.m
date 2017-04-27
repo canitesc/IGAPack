@@ -158,7 +158,7 @@ for indexPatch = 1:numPatches
     end
 end
 
-factor = 20;
+factor = 10000;
 
 figure
 trisurf(element4,physcoord(:,1)+dispcoord(:,1)*factor, physcoord(:,2)+dispcoord(:,2)*factor, zeros(size(physcoord,1),1), sigmacoord(:,1), 'EdgeColor','none','facecolor','interp')

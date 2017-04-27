@@ -1,5 +1,5 @@
 function [ elements ] = sortFaceElem( PHTelem, face)
-%outputs the nodes and elements along the given face, sorted in the order in
+%outputs the elements along the given face, sorted in the order in
 %which they appear in the parameter space
 %Note: here face is scalar (single value)
 %face encoding: 1 - front, 2 - right, 3 - back, 4 - left, 5 - down, 6 - up
