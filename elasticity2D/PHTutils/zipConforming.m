@@ -54,7 +54,7 @@ for boundaryIndex = 1:numBoundaries
     end
     [nodesB,sI] = sort(nodesB);
     nodesA = nodesA(sI);
-    
+
     curBdryNode = 0;
     for nodeIndex=1:length(nodesA)
         %shift the basis functions indices in nodesPattern
@@ -62,21 +62,19 @@ for boundaryIndex = 1:numBoundaries
         curBdryNode = nodesB(nodeIndex);
         nodesPattern(prevBdryNode+1:curBdryNode-1) = ((prevBdryNode+1):(curBdryNode-1)) + curShift;
         nodesPattern(curBdryNode) = nodesA(nodeIndex);
-        curShift = curShift - 1;
+        if prevBdryNode<curBdryNode
+            curShift = curShift - 1;
+        end
     end
     %shift the indices after the last boundary node
     nodesPattern(curBdryNode+1:end) = ((curBdryNode+1):dimBasis(patchB)) + curShift;
-    
     %update the nodesGlobal in patchB according to nodesPattern
     for elemIndex = 1:length(PHTelem{patchB})
         PHTelem{patchB}(elemIndex).nodesGlobal = nodesPattern(PHTelem{patchB}(elemIndex).nodes);
-    end
-    overlapCounter = overlapCounter + length(nodesA);
-    %boundaryIndex
-    %size(dimBasis)
-    curShift = sum(dimBasis(patchesSeen))-overlapCounter;        
+    end    
+    overlapCounter = overlapCounter + length(unique(nodesA));
+    
+    curShift = sum(dimBasis(patchesSeen))-overlapCounter;    
+    
 end
 sizeBasis = sum(dimBasis) - overlapCounter;
-
-
-
