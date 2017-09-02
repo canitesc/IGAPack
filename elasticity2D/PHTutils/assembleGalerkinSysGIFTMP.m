@@ -37,6 +37,23 @@ for j=1:q+1
     end
 end
 
+%allocate memory for the triplet arrays
+indexCounter = 0;
+for patchIndex=1:length(PHTelem)
+    for i=1:length(PHTelem{patchIndex})
+        if isempty(PHTelem{patchIndex}(i).children)
+            nument = size(PHTelem{patchIndex}(i).C,1);
+            indexCounter = indexCounter + 4*nument^2;
+        end
+    end
+end
+%indexCounter
+II = zeros(1,indexCounter);
+JJ = zeros(1,indexCounter);
+S = zeros(1, indexCounter);
+
+indexCounter = 0;
+
 %initialize LHS stiffness matrix and RHS vector
 dim = 2; %the dimension of physical space
 stiff = sparse(dim*sizeBasis,dim*sizeBasis);
@@ -56,10 +73,10 @@ for patchIndex = 1:length(PHTelem)
             %the jacobian of the transformation from [-1,1]x[-1,1] to
             %[xmin, xmax]x [ymin, ymax]
             scalefac = (xmax - xmin)*(ymax - ymin)/4;
-                                    
+            
             nument = size(PHTelem{patchIndex}(i).C,1);
-            scrtx = PHTelem{patchIndex}(i).nodesGlobal(1:nument);
-            dscrtx = reshape([2*scrtx-1; 2*scrtx],1,2*nument);
+            sctrx = PHTelem{patchIndex}(i).nodesGlobal(1:nument);
+            dsctrx = reshape([2*sctrx-1; 2*sctrx],1,2*nument);
             
             localstiff = zeros(2*nument, 2*nument); %local stiffness
             
@@ -100,9 +117,14 @@ for patchIndex = 1:length(PHTelem)
                     
                 end
             end
-            stiff(dscrtx, dscrtx) = stiff(dscrtx, dscrtx) + localstiff;
+            %stiff(dscrtx, dscrtx) = stiff(dscrtx, dscrtx) + localstiff;
+            II(indexCounter+1:indexCounter+4*nument^2) = repmat(dsctrx,1,2*nument);
+            JJ(indexCounter+1:indexCounter+4*nument^2) = reshape(repmat(dsctrx,2*nument,1),1,4*nument^2);
+            S(indexCounter+1:indexCounter+4*nument^2) = reshape(localstiff,1,4*nument^2);
+            indexCounter = indexCounter + 4*nument^2;
         end
     end
 end
 
+stiff = sparse(II,JJ,S,2*sizeBasis,2*sizeBasis);
 disp(['The mesh has ', num2str(elementCounter), ' active elements.'])
