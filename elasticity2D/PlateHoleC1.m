@@ -5,6 +5,9 @@
 close all
 clear all
 
+% start parallel solver
+parpool
+
 p = 3;
 q = 3;
 
@@ -123,3 +126,6 @@ while keep_refining
     %keep_refining = 1;
     toc
 end
+
+% End Parallel solver
+delete(gcp)
