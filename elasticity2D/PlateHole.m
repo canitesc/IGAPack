@@ -6,8 +6,11 @@ close all
 clear all
 restoredefaultpath
 
-p = 3;
-q = 3;
+% p = 3;
+% q = 3;
+
+p = 2;
+q = 1;
 
 target_rel_error = 1e-6;
 %targetScale = 1 --> uniform refinement
