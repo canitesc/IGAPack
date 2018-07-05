@@ -92,7 +92,7 @@ while keep_refining
     
     
     toc
-    vtuFile = ['PHTSolution',num2str(num_steps),'.vtu'];
+    vtuFile = ['TBeamSolution',num2str(num_steps),'.vtu'];
     plotStressDisp3DVM_20pt(PHTelem, GIFTmesh, sol0, p, q, r, Cmat, vtuFile)
     toc
 
