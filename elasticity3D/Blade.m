@@ -67,20 +67,8 @@ while keep_refining
     
     toc
     disp('Solving the linear system...')
-    M1=spdiags(1./sqrt(diag(stiff)),0,size(stiff,1),size(stiff,2));
-    toc
-    alpha = 10;
-    stiff = M1*stiff*M1';
-    toc
-    L1 = ichol(stiff, struct('type','ict','droptol',1e-3,'diagcomp',alpha));
-    toc
-    [sol0,fl1,rr1,it1,rv1] = pcg(stiff,M1*rhs,1e-14,num_steps*1000,L1,L1');
-    sol0 = M1*sol0;
-    fprintf('PCG exited with flag %d\n', fl1)
-    fprintf('Residual value: %1.15g\n', rr1)
-    fprintf('Number of iterations: %d\n', it1)
-    clear stiff L1
-   % sol0 = stiff\rhs;
+    % use direct solver for this problem due to singularities in the parametrization
+    sol0 = stiff\rhs;
     toc
     vtuFile = ['BladeSol',num2str(num_steps),'.vtu'];
     plotStressDisp3DVM_20pt(PHTelem, GIFTmesh, sol0, p, q, r, Cmat, vtuFile, 1e-3)
