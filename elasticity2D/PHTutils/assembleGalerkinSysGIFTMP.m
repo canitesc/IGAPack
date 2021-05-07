@@ -4,13 +4,9 @@ function [ stiff, rhs ] = assembleGalerkinSysGIFTMP( PHTelem, GIFTmesh, sizeBasi
 %supports multipatches
 
 %Gauss points
-if p>3
-    ngauss_x = p+1;
-    ngauss_y = q+1;
-else
-    ngauss_x = p+2;
-    ngauss_y = p+2;
-end
+ngauss_x = p+1;
+ngauss_y = q+1;
+
 [gauss_weight_x, gauss_coord_x] = quadrature( ngauss_x, 'GAUSS', 1 );
 [gauss_weight_y, gauss_coord_y] = quadrature( ngauss_y, 'GAUSS', 1 );
 

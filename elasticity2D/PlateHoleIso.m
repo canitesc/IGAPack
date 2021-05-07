@@ -3,19 +3,19 @@
 % Use C0 2-patch isoparametric mapping
 
 close all
-clear all
+clear
 
 p = 3;
 q = 3;
 
-target_rel_error = 1e-6;
+target_rel_error = 1e-5;
 targetScale = 0.75;
 resultsArray =[];
 
 
-addpath ./PHTutils
-addpath ./example_data
-addpath ../nurbs/inst
+addpath('./PHTutils')
+addpath('./example_data')
+addpath('../nurbs/inst')
 
 %Material properties
 Emod = 1e5;
@@ -33,9 +33,9 @@ L = 4;
 numPatches = 2;
 
 [PHTelem, controlPts, dimBasis, quadList] = initPHTmeshIso('plate_hole',numPatches,p,q);
+[vertices, vertex2patch, patch2vertex] = genVertex2Patch2D(PHTelem, controlPts, p, q);
+[edge_list] = genEdgeList(patch2vertex);
 
-%patches 1 and 2 are connected at the right(2)-left(4) edges respectively
-patchBoundaries = {1, 2, 2, 4};
 
 tic
 
@@ -49,8 +49,8 @@ while keep_refining
     figure
    
     toc
-    [ PHTelem, controlPts, dimBasis, quadList ] = checkConformingIso( PHTelem, controlPts, dimBasis, patchBoundaries, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);
+    [ PHTelem, controlPts, dimBasis, quadList ] = checkConformingIso( PHTelem, controlPts, dimBasis, edge_list, p, q, quadList );
+    [ PHTelem, sizeBasis ] = zipConformingIso( PHTelem, dimBasis, vertex2patch, edge_list, p, q);
     sizeBasis
     toc
      plotPHTMeshIsoMP( PHTelem, controlPts, p, q )

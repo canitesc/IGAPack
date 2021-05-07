@@ -4,7 +4,7 @@
 % use 4 patches
 
 close all
-clear all
+clear
 
 p = 3;
 q = 3;
@@ -14,9 +14,9 @@ numPatches = 4;
 target_rel_error = 1e-3;
 targetScale = 0.5;
 
-addpath ./PHTutils
-addpath ./example_data
-addpath ../nurbs/inst
+addpath('./PHTutils')
+addpath('./example_data')
+addpath('../nurbs/inst')
 
 %Material properties
 Emod = 1e3;
@@ -56,11 +56,12 @@ while keep_refining
     num_steps = num_steps + 1;
     toc
     disp(['Step ', num2str(num_steps)])
-    figure
-    plotPHTMeshMP(PHTelem, GIFTmesh)
+
     [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, patchBoundaries, p, q, quadList );
     [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);        
     sizeBasis
+    figure
+    plotPHTMeshMP(PHTelem, GIFTmesh)
     
     %assemble the linear system
     disp('Assembling the linear system...')

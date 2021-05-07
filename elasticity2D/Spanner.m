@@ -3,17 +3,17 @@
 % Use Coons parametrization
 
 close all
-clear all
+clear
 
 p = 4;
 q = 4;
 
 target_rel_error = 1e-1;
-targetScale = 0.5;
+targetScale = 0.9;
 
-addpath ./PHTutils
-addpath ./example_data
-addpath ../nurbs/inst
+addpath('./PHTutils')
+addpath('./example_data')
+addpath('../nurbs/inst')
 
 %Material properties
 Emod = 1e5;

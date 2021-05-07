@@ -3,7 +3,7 @@
 % Use C1 1-patch GIFT mapping
 
 close all
-clear all
+clear
 
 p = 3;
 q = 3;
@@ -11,9 +11,9 @@ q = 3;
 target_rel_error = 1e-5;
 targetScale = 1;
 
-addpath ./PHTutils
-addpath ./example_data
-addpath ../nurbs/inst
+addpath('./PHTutils')
+addpath('./example_data')
+addpath('../nurbs/inst')
 
 
 %Material properties

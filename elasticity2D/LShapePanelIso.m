@@ -6,7 +6,7 @@
 
 
 close all
-%clear all
+clear
 
 p = 3;
 q = 3;
@@ -14,9 +14,9 @@ q = 3;
 target_rel_error = 1e-4;
 targetScale = 0.5;
 
-addpath ./PHTutils
-addpath ./example_data
-addpath ../nurbs/inst
+addpath('./PHTutils')
+addpath('./example_data')
+addpath('../nurbs/inst')
 
 %Material properties
 Emod=1e5;
@@ -32,10 +32,8 @@ Cmat = Emod/((1+nu)*(1-2*nu))*[1-nu, nu, 0; nu, 1-nu, 0; 0, 0, (1-2*nu)/2];
 
 numPatches = 3;
 [PHTelem, controlPts, dimBasis, quadList] = initPHTmeshIso('Lshape_ex',numPatches,p,q);
-
-%patches 1 and 2 are connected at the down(1)-left(4) edges respectively
-%patches 2 and 3 are connected at the down(1)-left(4) edges respectively
-patchBoundaries = {1, 2, 1, 4; 2, 3, 1, 4};
+[vertices, vertex2patch, patch2vertex] = genVertex2Patch2D(PHTelem, controlPts, p, q);
+[edge_list] = genEdgeList(patch2vertex);
 
 solArray = [];
 
@@ -47,23 +45,16 @@ num_steps = 0;
 while keep_refining
     num_steps = num_steps + 1;
     toc
-%     for i=1:numPatches
-%         [ PHTelem{i}] = scaleBasis(PHTelem{i}, dimBasis(i));
-%     end
     disp(['Step ', num2str(num_steps)])
+    
+    [ PHTelem, controlPts, dimBasis, quadList ] = checkConformingIso( PHTelem, controlPts, dimBasis, edge_list, p, q, quadList );
+    [ PHTelem, sizeBasis ] = zipConformingIso( PHTelem, dimBasis, vertex2patch, edge_list, p, q);
+
     figure
     plotPHTMeshIsoMP( PHTelem, controlPts, p, q )    
     hold off
     toc
     
-    [ PHTelem, controlPts, dimBasis, quadList ] = checkConformingIso( PHTelem, controlPts, dimBasis, patchBoundaries, p, q, quadList );
-  
-    figure
-    plotPHTMeshIsoMP( PHTelem, controlPts, p, q )    
-    hold off
-    toc
-    
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);
     %sizeBasis
     toc
     
@@ -98,15 +89,6 @@ while keep_refining
     toc   
     disp('Estimating the error...')
     
-%     quadRef = cell(1, numPatches);
-%     estErrorGlob = zeros(1, numPatches);
-%     
-%     for patchIndex=1:numPatches
-%         [quadRef{patchIndex}, estErrorGlob(patchIndex)] = recoverDerivEstGalIsoMP(PHTelem{patchIndex}, controlPts{patchIndex}, sol0, target_rel_error/numPatches, quadList{patchIndex}, p, q, Cmat, targetScale);
-%     end
-%     
-%     estErrorGlobTotal = sum(estErrorGlob)
-%     
     [quadRef, estErrorGlobTotal] = recoverDerivEstGalIsoMPDorfler(PHTelem, controlPts, sol0, quadList, p, q, Cmat, targetScale);
 
     toc

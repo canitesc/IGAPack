@@ -12,9 +12,9 @@ q = 5;
 target_rel_error = 1e-3;
 targetScale = 1;
 
-addpath ./PHTutils
-addpath ./example_data
-addpath ../nurbs/inst
+addpath('./PHTutils')
+addpath('./example_data')
+addpath('../nurbs/inst')
 
 
 %Material properties

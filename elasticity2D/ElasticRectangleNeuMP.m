@@ -4,7 +4,7 @@
 % Neumann boundary conditions on the right edge
 
 close all
-clear all
+clear
 
 p = 4;
 q = 4;
@@ -13,9 +13,9 @@ numPatches = 1;
 
 target_rel_error = 1e-5;
 targetScale = 0.5;
-addpath ./PHTutils
-addpath ./example_data
-addpath ../nurbs/inst
+addpath('./PHTutils')
+addpath('./example_data')
+addpath('../nurbs/inst')
 
 %Material properties
 Emod = 3e4;

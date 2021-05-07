@@ -3,17 +3,17 @@
 % Use Coons parametrization
 
 close all
-clear all
+clear
 
 p = 3;
 q = 3;
 
-target_rel_error = 1e-2;
+target_rel_error = 1e-1;
 targetScale = 1e-2;
 
-addpath ./PHTutils
-addpath ./example_data
-addpath ../nurbs/inst
+addpath('./PHTutils')
+addpath('./example_data')
+addpath('../nurbs/inst')
 
 
 %Material properties
@@ -30,8 +30,8 @@ numPatches = 6;
 numberElementsU = 3;
 numberElementsV = 1;
 
-%patches 1 and 2 are connected at the right(2)-left(4) edges respectively
-patchBoundaries = {1,2,3,1;2,3,3,1;3,4,3,1;4,5,3,1;5,6,3,1};
+[vertices, vertex2patch, patch2vertex] = genVertex2Patch2D(PHTelem, controlPts, p, q);
+[edge_list] = genEdgeList(patch2vertex);
 
 tic
 
@@ -46,8 +46,8 @@ while keep_refining
     plotPHTMeshIsoMP( PHTelem, controlPts, p, q )
     toc
     
-    [ PHTelem, controlPts, dimBasis, quadList ] = checkConformingIso( PHTelem, controlPts, dimBasis, patchBoundaries, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);
+    [ PHTelem, controlPts, dimBasis, quadList ] = checkConformingIso( PHTelem, controlPts, dimBasis, edge_list, p, q, quadList );
+    [ PHTelem, sizeBasis ] = zipConformingIso( PHTelem, dimBasis, vertex2patch, edge_list, p, q);
     sizeBasis
     toc
     
@@ -84,12 +84,6 @@ while keep_refining
 
      toc
 %     
-%     %calculate the error norms        
-%     disp('Calculating error norms...')
-%     [l2relerr, h1relerr] = calcErrorNormsPH( sol0, PHTelem, GIFTmesh, p, q, Cmat, Emod, nu, rad, tx );
-%     l2relerr
-%     h1relerr
-% 
 %     disp(['Effectivity index: ',num2str(estErrorGlobTotal/h1relerr)])
    %adaptive refinement
     indexQuad = cell(1, numPatches);
@@ -104,7 +98,7 @@ while keep_refining
             numNewPatches = length(indexQuad{patchIndex});
             toc       
             disp(['In geometric patch ', num2str(patchIndex), ' refining ',num2str(numNewPatches), ' quadruplets out of ', num2str(length(quadList{patchIndex}))])
-            [quadList{patchIndex}, PHTelem{patchIndex}, controlPts{patchIndex}, dimBasis(patchIndex)] = refineMeshIso(quadRef{patchIndex}, quadList{patchIndex}, PHTelem{patchIndex}, controlPts{patchIndex}, p, q, dimBasis(patchIndex));
+            [quadList{patchIndex}, PHTelem{patchIndex}, controlPts{patchIndex}, dimBasis(patchIndex)] = refineMeshGradedIso(quadRef{patchIndex}, quadList{patchIndex}, PHTelem{patchIndex}, controlPts{patchIndex}, p, q, dimBasis(patchIndex));
         end    
     end
     %stop refinment if the sum of keep_ref is zero. 

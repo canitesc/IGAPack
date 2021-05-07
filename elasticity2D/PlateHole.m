@@ -9,7 +9,7 @@ restoredefaultpath
 p = 3;
 q = 3;
 
-target_rel_error = 1e-6;
+target_rel_error = 1e-5;
 %targetScale = 1 --> uniform refinement
 %tagetScale < 1 --> more graded refinement
 targetScale = 0.75;

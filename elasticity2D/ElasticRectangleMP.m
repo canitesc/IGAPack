@@ -2,20 +2,21 @@
 % implement a rectangular beam with PHT splines
 % use GIFT mapping
 % use 2 patches
+% This is a patch test of a plate in tension where the solution has linear
+% displacement and constant stresses/strains
 
 close all
-clear all
+clear
 
 p = 4;
 q = 4;
 
-numPatches = 1;
+numPatches = 3;
 
 target_rel_error = 1e-3;
-addpath ./PHTutils
-addpath ./example_data
-addpath ../nurbs/inst
-
+addpath('./PHTutils')
+addpath('./example_data')
+addpath('../nurbs/inst')
 %Material properties
 Emod = 3e4;
 nu = 0;
@@ -35,9 +36,7 @@ GIFTmesh = init2DGeometryGIFTMP('rectangle',L,W,numPatches);
 quadList = cell(numPatches,1);
 PHTelem = cell(numPatches, 1);
 for i=1:numPatches
-    %[PHTelem{i}, dimBasis(i)] = initPHTmeshGen(p,q);
     [ PHTelem{i}, dimBasis(i), quadList{i}] = initPHTmeshGen( p,q, 2, 2 );
-%    quadList{i} = 2:5;    
 end
 
 patchBoundaries = cell(numPatches-1, 4);

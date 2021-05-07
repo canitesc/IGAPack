@@ -4,7 +4,7 @@
 % variable number of patches
 
 close all
-clear all
+clear
 
 p = 3;
 q = 3;
@@ -13,9 +13,9 @@ numPatches = 3;
 
 target_rel_error = 1e-3;
 targetScale = .5;
-addpath ./PHTutils
-addpath ./example_data
-addpath ../nurbs/inst
+addpath('./PHTutils')
+addpath('./example_data')
+addpath('../nurbs/inst')
 
 %Material properties
 Emod = 3e4;
@@ -31,14 +31,8 @@ for i=1:numPatches
     quadList{i} = 2:5;    
 end
 
-patchBoundaries = cell(numPatches-1, 4);
-for indexPatch = 1:numPatches-1
-    %define the boundary between patch i and patch i+1
-    patchBoundaries{indexPatch,1} = indexPatch;
-    patchBoundaries{indexPatch,2} = indexPatch+1;
-    patchBoundaries{indexPatch,3} =  2;
-    patchBoundaries{indexPatch,4} = 4;
-end
+[vertices, vertex2patch, patch2vertex] = genVertex2Patch2D(PHTelem, controlPts, p, q);
+[edge_list] = genEdgeList(patch2vertex);
 
 tic
 keep_refining = 1;
@@ -51,8 +45,8 @@ while keep_refining
     figure
     plotPHTMeshIsoMP(PHTelem, controlPts, p, q)
     
-    [ PHTelem, controlPts, dimBasis, quadList ] = checkConformingIso( PHTelem, controlPts, dimBasis, patchBoundaries, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);        
+    [ PHTelem, controlPts, dimBasis, quadList ] = checkConformingIso( PHTelem, controlPts, dimBasis, edge_list, p, q, quadList );
+    [ PHTelem, sizeBasis ] = zipConformingIso( PHTelem, dimBasis, vertex2patch, edge_list, p, q);        
     sizeBasis
     toc
     
