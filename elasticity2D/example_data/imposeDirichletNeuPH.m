@@ -30,19 +30,19 @@ left_nodes = 1:(p+1):(1+(p+1)*q);
 for i=1:length(PHTelem)
     if isempty(PHTelem(i).children)
         if isempty(PHTelem(i).neighbor_down)
-            bcdof_down = [bcdof_down, PHTelem(i).nodes(down_nodes)];
+            bcdof_down = [bcdof_down, PHTelem(i).nodesGlobal(down_nodes)];
             neumann_down = [neumann_down; i, 1];
         end
         if isempty(PHTelem(i).neighbor_right)
-            bcdof_right = [bcdof_right, PHTelem(i).nodes(right_nodes)];
+            bcdof_right = [bcdof_right, PHTelem(i).nodesGlobal(right_nodes)];
             neumann_right = [neumann_right; i, 2];
         end
         if isempty(PHTelem(i).neighbor_up)
-            bcdof_up = [bcdof_up, PHTelem(i).nodes(up_nodes)];
+            bcdof_up = [bcdof_up, PHTelem(i).nodesGlobal(up_nodes)];
             neumann_up = [neumann_up; i, 3];
         end
         if isempty(PHTelem(i).neighbor_left)
-            bcdof_left = [bcdof_left, PHTelem(i).nodes(left_nodes)];
+            bcdof_left = [bcdof_left, PHTelem(i).nodesGlobal(left_nodes)];
             neumann_left = [neumann_left; i, 4];
         end
         
@@ -97,7 +97,7 @@ for i_neu=1:size(neumann,1)
     nument = size(PHTelem(i).C,1);
     
     
-    scrtx = PHTelem(i).nodes(1:nument);
+    scrtx = PHTelem(i).nodesGlobal(1:nument);
     
     if corient==1
         scrtx = scrtx(down_nodes);

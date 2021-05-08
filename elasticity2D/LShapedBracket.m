@@ -39,27 +39,9 @@ for i=1:numPatches
     quadList{i} = 2:5;
 end
 
-%patchBoundaries cell array
-%format for each row: {source patch(es), target patch, source patch edge(s), target patch edge(s)}
-%patchBoundaries = {1, 2, 3, 1; 2, 3, 3, 1; [3,1], 4, [3, 1], [1,3]};
-patchBoundaries = {1,4,1,3;
-    4,3,1,3;
-    [1,3],2,[3,1],[1,3];
-    2, 5, 2, 3;
-    5, 6, 2, 4;
-    5, 8, 4, 2;
-    [6,8], 7, [2,4], [4,2];
-    7, 10, 3, 2;
-    10, 9, 4, 2;
-    9, 11, 4, 2;
-    11, 14, 1, 3;
-    11, 12, 3, 1;
-    [12,14], 13, [3,1], [1,3];
-    13, 18, 2, 3;
-    18, 15, 2, 4;
-    18, 17, 4, 2;
-    [15,17], 16, [2,4], [4,2];
-    };
+[vertices, vertex2patch, patch2vertex] = genVertex2PatchGift2D(GIFTmesh);
+[edge_list] = genEdgeList(patch2vertex);
+
 tic
 
 keep_refining = 1;
@@ -70,8 +52,8 @@ while keep_refining
     toc
     disp(['Step ', num2str(num_steps)])   
     toc        
-    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, patchBoundaries, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);
+    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, edge_list, p, q, quadList );
+    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, vertex2patch, edge_list, p, q);
     
     figure
     plotPHTMeshMP( PHTelem, GIFTmesh )

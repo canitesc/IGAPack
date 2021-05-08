@@ -1,4 +1,4 @@
-function [ elements ] = sortEdgeElem( PHTelem, edge)
+function [ elements ] = sortEdgeElem( PHTelem, edge, flagDir)
 %outputs the nodes and element along the given edge, sorted in the order in
 %which they appear in the parameter space
 %edge encoding: 1 - down, 2 - right, 3 - up, 4 - left
@@ -56,25 +56,25 @@ end
 %sort the elements according to vertex location
 for edgeIndex=1:numEdges
     if (edge(edgeIndex) == 1)
-        [verticesDown, indexSort] = sort(verticesDown);
+        [verticesDown, indexSort] = sort(flagDir(edgeIndex)*verticesDown);
         %rearrange the elements according to the sorting oder
         elements{edgeIndex} = elements{edgeIndex}(indexSort);        
     end
     
     if (edge(edgeIndex) == 2)
-        [verticesRight, indexSort] = sort(verticesRight);
+        [verticesRight, indexSort] = sort(flagDir(edgeIndex)*verticesRight);
         %rearrange the elements according to the sorting oder
         elements{edgeIndex} = elements{edgeIndex}(indexSort);        
     end
     
     if (edge(edgeIndex) == 3)
-        [verticesUp, indexSort] = sort(verticesUp);
+        [verticesUp, indexSort] = sort(flagDir(edgeIndex)*verticesUp);
         %rearrange the elements according to the sorting oder
         elements{edgeIndex} = elements{edgeIndex}(indexSort);        
     end
     
     if (edge(edgeIndex) == 4)
-        [verticesLeft, indexSort] = sort(verticesLeft);
+        [verticesLeft, indexSort] = sort(flagDir(edgeIndex)*verticesLeft);
         %rearrange the elements according to the sorting oder
         elements{edgeIndex} = elements{edgeIndex}(indexSort);        
     end    

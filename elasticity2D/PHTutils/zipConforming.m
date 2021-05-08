@@ -1,80 +1,86 @@
-function [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q )
-%connects two conforming patches by changing the nodesGlobal entry
-%patchBoundaries format:
-% patchA, patchB, edgeA, edgeB, flagRepeat
-% patchA should be 1
-% flagRepeat = 0 --> shift node indices, flagRepeat = 1 -->
-%edge format: 1-down, 2-right, 3-up, 4-left
+function [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, vertex2patch, edge_list, p, q )
+% Connects two conforming patches by changing the nodesGlobal entry using the vertex and
+% edge list connectivity
+% Input: PHTelem - cell array containing the multi-patch mesh
+%        dimBasis - array containing the basis dimension in each patch
+%        vertex2patch - cell array containing the vertex-patch connectivity and vertex
+%                       corner locations
+%        edge_list - structure containing a list of edges (patch interfaces)
+%                p - polynomial degree in the u direction (p=3 for "iso" code)
+%                q - polynomial degree in the v direction (q=3 for "iso" code)
+% Output: PHTelem - updated PHTelem cell array including a nodesGlobal field for each
+%                   patch containing the global node numbers
+%         sizeBasis - integer scalar representing the dimension of the overall geometry
+%                     (related to the size of the global system matrix)
 
-numBoundaries = size(patchBoundaries,1);
+
 numPatches = length(PHTelem);
+corner_indices = [1, p+1, (p+1)*(q+1), (p+1)*q+1];
+assignedNodes = cell(1, numPatches);
+nodesPattern = cell(1, numPatches);
 
-%create/set nodesGlobal entries in all patches to be equal to local nodes
-%entries
+% initialize nodesPattern in all patches to zero
 for patchIndex = 1:numPatches
-    for elemIndex = 1:length(PHTelem{patchIndex})
-        PHTelem{patchIndex}(elemIndex).nodesGlobal = PHTelem{patchIndex}(elemIndex).nodes;
+    nodesPattern{patchIndex} = zeros(1, dimBasis(patchIndex));
+end
+
+% Step 1: Loop over the vertices in vertex2patch and assign the global indices as the
+% patch corners
+sizeBasis = 0;
+for vertexindex = 1:length(vertex2patch)
+    for i = 1:size(vertex2patch{vertexindex},1)
+        patchIndex = vertex2patch{vertexindex}(i,1);
+        cornerIndex = vertex2patch{vertexindex}(i,2);
+        elementIndex = getElementFromCorner(PHTelem{patchIndex}, cornerIndex);
+        localNodes = PHTelem{patchIndex}(elementIndex).nodes(corner_indices(cornerIndex));
+        assignedNodes{patchIndex} = [assignedNodes{patchIndex}, localNodes];
+        nodesPattern{patchIndex}(localNodes) = vertexindex;
     end
 end
 
-curShift = dimBasis(1);
-overlapCounter = 0;
-patchesSeen = [];
-
-for boundaryIndex = 1:numBoundaries
-    %get the nodes on the boundary edge in patchA and patchB
-    patchAList = patchBoundaries{boundaryIndex,1};
-    patchB = patchBoundaries{boundaryIndex,2};
-    edgeAList = patchBoundaries{boundaryIndex,3};
-    edgeBList = patchBoundaries{boundaryIndex,4};
-    nodesPattern = zeros(1, dimBasis(patchB));
-    nodesA = [];
-    nodesB = [];
-    patchesSeen = union(patchesSeen, patchB);
-    
-    for indexPatch=1:length(patchAList)
-        patchA = patchAList(indexPatch);
-        edgeA = edgeAList(indexPatch);
-        edgeB = edgeBList(indexPatch);
-        patchesSeen = union(patchesSeen, patchA);
-        
-        nodesAcell = sortEdgeNodesElem( PHTelem{patchA}, edgeA, p, q );
-        nodesBcell = sortEdgeNodesElem( PHTelem{patchB}, edgeB, p, q );
-        
-        nodesA = [nodesA, nodesAcell{1}];
-        nodesB = [nodesB, nodesBcell{1}];
-        
-        if length(nodesA)~=length(nodesB)
-            patchA
-            patchB
-            nodesA
-            nodesB
-            error('Non-conforming patches encountered. Aborting...')
-        end
+% Step 2: Loop over the edges in edge_list and assign the global indices in the interior
+% of each edge
+sizeBasis = sizeBasis + length(vertex2patch);
+edge_fields = fieldnames(edge_list);
+for edge_index = 1:length(edge_fields)
+    edge_field = edge_fields{edge_index};
+    patchA = edge_list.(edge_field)(1);
+    edgeA = edge_list.(edge_field)(2);
+    nodesAcell = sortEdgeNodesElem( PHTelem{patchA}, edgeA, p, q, 1 );
+    nodesA = nodesAcell{1}(2:end-1);
+    assignedNodes{patchA} = [assignedNodes{patchA}, nodesA];
+    num_new_nodes = length(nodesA);
+    newNodeSet = sizeBasis+1:sizeBasis+num_new_nodes;
+    nodesPattern{patchA}(nodesA) = newNodeSet;
+    % if the edge is in the interior (has length=5)
+    if length(edge_list.(edge_field))==5
+        %get the nodes on the boundary edge in patchB
+        patchB = edge_list.(edge_field)(3);
+        edgeB = edge_list.(edge_field)(4);
+        flagDir = edge_list.(edge_field)(5);
+        nodesBcell = sortEdgeNodesElem( PHTelem{patchB}, edgeB, p, q, flagDir);
+        nodesB = nodesBcell{1}(2:end-1);
+        assignedNodes{patchB} = [assignedNodes{patchB}, nodesB];
+        assert(length(nodesA)==length(nodesB), 'Non-conforming patches encountered.');
+        nodesPattern{patchB}(nodesB) = newNodeSet;
     end
-    [nodesB,sI] = sort(nodesB);
-    nodesA = nodesA(sI);
-
-    curBdryNode = 0;
-    for nodeIndex=1:length(nodesA)
-        %shift the basis functions indices in nodesPattern
-        prevBdryNode = curBdryNode;
-        curBdryNode = nodesB(nodeIndex);
-        nodesPattern(prevBdryNode+1:curBdryNode-1) = ((prevBdryNode+1):(curBdryNode-1)) + curShift;
-        nodesPattern(curBdryNode) = nodesA(nodeIndex);
-        if prevBdryNode<curBdryNode
-            curShift = curShift - 1;
-        end
-    end
-    %shift the indices after the last boundary node
-    nodesPattern(curBdryNode+1:end) = ((curBdryNode+1):dimBasis(patchB)) + curShift;
-    %update the nodesGlobal in patchB according to nodesPattern
-    for elemIndex = 1:length(PHTelem{patchB})
-        PHTelem{patchB}(elemIndex).nodesGlobal = nodesPattern(PHTelem{patchB}(elemIndex).nodes);
-    end    
-    overlapCounter = overlapCounter + length(unique(nodesA));
-    
-    curShift = sum(dimBasis(patchesSeen))-overlapCounter;    
-    
+    sizeBasis = sizeBasis + length(nodesA);
 end
-sizeBasis = sum(dimBasis) - overlapCounter;
+
+% Step 3: Loop over the patches and assign the interior global indices
+for patchIndex = 1:numPatches
+   unassignedNodes = setdiff(1:dimBasis(patchIndex), assignedNodes{patchIndex});
+   num_new_nodes = length(unassignedNodes);
+   newNodeSet = sizeBasis+1:sizeBasis+num_new_nodes;
+   nodesPattern{patchIndex}(unassignedNodes) = newNodeSet;
+   % loop over the active elements and assign the global node indices
+   for iElem = 1:length(PHTelem{patchIndex})
+       if isempty(PHTelem{patchIndex}(iElem).children)
+           PHTelem{patchIndex}(iElem).nodesGlobal =...
+               nodesPattern{patchIndex}(PHTelem{patchIndex}(iElem).nodes);
+       end
+   end
+   sizeBasis = sizeBasis + num_new_nodes;
+end
+
+

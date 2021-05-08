@@ -42,8 +42,9 @@ for i=1:numPatches
     %[ PHTelem{i}, dimBasis(i), quadList{i}] = initPHTmeshGen( p,q, 1, 2 )
 end
 
-%patches 1 and 2 are connected at the right(2)-left(4) edges respectively
-patchBoundaries = {};
+[vertices, vertex2patch, patch2vertex] = genVertex2PatchGift2D(GIFTmesh);
+[edge_list] = genEdgeList(patch2vertex);
+
 
 tic
 resultsArray = [];
@@ -56,8 +57,8 @@ while keep_refining
     disp(['Step ', num2str(num_steps)])
   %      figure
   %  plotPHTMeshMP( PHTelem, GIFTmesh )
-    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, patchBoundaries, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);
+    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, edge_list, p, q, quadList );
+    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, vertex2patch, edge_list, p, q);
     sizeBasis
     toc
     figure

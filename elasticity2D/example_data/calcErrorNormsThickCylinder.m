@@ -54,10 +54,10 @@ for i=1:length(PHTelem)
         
         nument = size(PHTelem(i).C,1); %number of basis functions with support on current knotspan                
        
-        scrt = PHTelem(i).nodes(1:nument);
-        scrt_x = 2*scrt-1;
-        scrt_y = 2*scrt;
-        dscrtx = reshape([2*scrt-1; 2*scrt],1,2*nument);                
+        sctr = PHTelem(i).nodesGlobal(1:nument);
+        sctr_x = 2*sctr-1;
+        sctr_y = 2*sctr;
+        dsctrx = reshape([2*sctr-1; 2*sctr],1,2*nument);                
                         
         for jj=1:numGaussY
             for ii=1:numGaussX
@@ -82,11 +82,11 @@ for i=1:length(PHTelem)
                 B(2:2:2*nument,3) = dR(1,:);
                                 
                 %calculate displacement values                
-                disp_x = cR'*sol0(scrt_x);
-                disp_y = cR'*sol0(scrt_y);    
+                disp_x = cR'*sol0(sctr_x);
+                disp_y = cR'*sol0(sctr_y);    
                 
                 %calculate the error in stress values
-                stressvect = Cmat*B'*sol0(dscrtx);
+                stressvect = Cmat*B'*sol0(dsctrx);
                 
                 l2norm = l2norm + (disp_ex(1)^2 + disp_ex(2)^2)*gwx(ii)*gwy(jj)*scalefac*J(jj,ii);
                 h1norm = h1norm + stress_ex'*invC*stress_ex*gwx(ii)*gwy(jj)*scalefac*J(jj,ii);                

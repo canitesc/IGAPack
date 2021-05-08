@@ -36,8 +36,8 @@ for i=1:numPatches
     [PHTelem{i}, dimBasis(i), quadList{i}] = initPHTmeshGen(p,q,numberElementsU,numberElementsV);
 end
 
-%patches 1 and 2 are connected at the right(2)-left(4) edges respectively
-patchBoundaries = {1,2,3,1;2,3,3,1;3,4,3,1;4,5,3,1;5,6,3,1};
+[vertices, vertex2patch, patch2vertex] = genVertex2PatchGift2D(GIFTmesh);
+[edge_list] = genEdgeList(patch2vertex);
 
 tic
 
@@ -51,8 +51,8 @@ while keep_refining
     figure
     plotPHTMeshMP( PHTelem, GIFTmesh )
     toc
-    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, patchBoundaries, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);
+    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, edge_list, p, q, quadList );
+    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, vertex2patch, edge_list, p, q);
     sizeBasis
     toc
     

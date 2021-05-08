@@ -9,7 +9,7 @@ clear
 p = 4;
 q = 4;
 
-numPatches = 1;
+numPatches = 3;
 
 target_rel_error = 1e-5;
 targetScale = 0.5;
@@ -40,14 +40,9 @@ for i=1:numPatches
     quadList{i} = 2:5;    
 end
 
-patchBoundaries = cell(numPatches-1, 4);
-for indexPatch = 1:numPatches-1
-    %define the boundary between patch i and patch i+1
-    patchBoundaries{indexPatch,1} = indexPatch;
-    patchBoundaries{indexPatch,2} = indexPatch+1;
-    patchBoundaries{indexPatch,3} =  2;
-    patchBoundaries{indexPatch,4} = 4;
-end
+[vertices, vertex2patch, patch2vertex] = genVertex2PatchGift2D(GIFTmesh);
+[edge_list] = genEdgeList(patch2vertex);
+
 tic
 
 keep_refining = 1;
@@ -60,8 +55,8 @@ while keep_refining
     figure
     plotPHTMeshMP(PHTelem, GIFTmesh)
    % pause
-    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, patchBoundaries, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);        
+    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, edge_list, p, q, quadList );
+    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, vertex2patch, edge_list, p, q);    
     sizeBasis
     toc
     

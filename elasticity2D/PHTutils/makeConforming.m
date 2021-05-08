@@ -1,4 +1,4 @@
-function [ quadRefA, quadRefB ] = makeConforming( PHTelemA, PHTelemB, elementsA, elementsB, edgeA, edgeB, quadListA, quadListB )
+function [ quadRefA, quadRefB ] = makeConforming( PHTelemA, PHTelemB, elementsA, elementsB, edgeA, edgeB, quadListA, quadListB, flagDir )
 %checks that patchA and patchB are conforming (the elements match up) and
 %refines if necessary
 %Note: assumes only 1 level of refinement is needed
@@ -21,9 +21,17 @@ else
 end
 
 if (edgeB == 1) || (edgeB == 3) %horizontal edge
-    vertIndexB = 3;
+    if flagDir==1
+        vertIndexB = 3;
+    else
+        vertIndexB = 1;
+    end
 else
-    vertIndexB = 4;
+    if flagDir==1
+        vertIndexB = 4;
+    else
+        vertIndexB = 2;
+    end
 end
 
 %loop over the elements in A
@@ -36,11 +44,20 @@ for elementIndex = 1:numElementsB
     vertexB(elementIndex) = PHTelemB(elementsB(elementIndex)).vertex(vertIndexB);
 end
 
-newVertexB = setdiff(vertexA, vertexB);
-newVertexA = setdiff(vertexB, vertexA);
+if flagDir==1
+    newVertexB = setdiff(vertexA, vertexB);
+    newVertexA = setdiff(vertexB, vertexA);
+else
+    newVertexB = setdiff(1-vertexA, vertexB);
+    newVertexA = setdiff(1-vertexB, vertexA);
+end
 
 vertexA = [0, vertexA];
-vertexB = [0, vertexB];
+if flagDir==1
+    vertexB = [0, vertexB];
+else
+    vertexB = flip([1, vertexB]);
+end
 
 %find the elements and quads in A that need to be refined
 for vertIndex = 1:length(newVertexA)
@@ -55,6 +72,9 @@ end
 
 %find the elements and quads in B that need to be refined
 for vertIndex = 1:length(newVertexB)
+    if flagDir==-1
+        elementsB = flip(elementsB);
+    end
     for elementIndex = 1:numElementsB
         if (vertexB(elementIndex+1) > newVertexB(vertIndex)) && (vertexB(elementIndex)<newVertexB(vertIndex))
             [quadIndex, ~] = find(quadListB==elementsB(elementIndex));

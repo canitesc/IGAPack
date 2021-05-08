@@ -75,7 +75,6 @@ bcdof = unique(bcdof);
 bcdof = [2*bcdof-1, 2*bcdof];
 bcval = zeros(size(bcdof));
 
-neumann 
 %impose Neumann boundary conditons
 num_neumann_elem = size(neumann,1);
 
@@ -181,9 +180,7 @@ for i_neu=1:num_neumann_elem
             R = R(left_nodes)';
         end
         taux = 0;
-%         coord
-%         (D + neu_min*L)
-%         (D + neu_max*L)
+
         if (coord(1) >= (D + neu_min*L)) && (coord(1) <= (D + neu_max*L))
             tauy = -bound_press;
         else

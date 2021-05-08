@@ -1,6 +1,6 @@
 function [PHTelem,controlPts,dimBasis,quadList] = checkConformingIso(PHTelem, controlPts, dimBasis, edge_list, p, q, quadList)
 % checks that the patches are conforming and if needed makes them conforming
-% through mesh refinement using the vertex2patch and edge_list connectivity
+% through mesh refinement using the edge_list connectivity
 % Input: PHTelem - cell array containing the multi-patch mesh
 %        controlPts - cell array containing the control points for each patch
 %        dimBasis - array containing the basis dimension in each patch
@@ -36,10 +36,10 @@ while keepChecking
             quadListA = quadList{patchA};
             quadListB = quadList{patchB};
             
-            [elementsA] = sortEdgeElemIso( PHTelem{patchA}, edgeA, 1);
-            [elementsB] = sortEdgeElemIso( PHTelem{patchB}, edgeB, flagDir);
+            [elementsA] = sortEdgeElem( PHTelem{patchA}, edgeA, 1);
+            [elementsB] = sortEdgeElem( PHTelem{patchB}, edgeB, flagDir);
             
-            [quadRefA, quadRefB] = makeConformingIso(PHTelem{patchA}, PHTelem{patchB}, elementsA{1},...
+            [quadRefA, quadRefB] = makeConforming(PHTelem{patchA}, PHTelem{patchB}, elementsA{1},...
                 elementsB{1}, edgeA, edgeB, quadListA, quadListB, flagDir);
             indexQuadA = find(quadRefA > 0);
             indexQuadB = find(quadRefB > 0);

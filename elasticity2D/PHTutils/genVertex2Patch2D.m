@@ -5,9 +5,9 @@ function [vertices, vertex2patch, patch2vertex] = genVertex2Patch2D(patch_list, 
 %     Parameters
 %     ----------
 %     patch_list : cell array of PHTelem structs
+%     controlPts :  cell array containing the control points in each patch
 %     p : polynomial degree in u direction
 %     q : polynomial degree in v direction
-%     controlPts :  cell array containing the control points in each patch
 % 
 %     Returns
 %     -------
@@ -30,7 +30,7 @@ function [vertices, vertex2patch, patch2vertex] = genVertex2Patch2D(patch_list, 
 numPatches = length(patch_list);
 vertices = [];
 vertex2patch = {};
-patch2vertex = {};
+patch2vertex = cell(1, numPatches);
 
 tol_eq = 1e-10;
 % loop over all the patches and elements and add the corner vertices
@@ -38,11 +38,11 @@ for i=1:numPatches
     cur_patch = patch_list{i};
     patch_entry = zeros(1, 4);
     num_elem = length(cur_patch);
+    cpts = controlPts{i};
     for j = 1:num_elem
         if isempty(cur_patch(j).children)
             elem_vertex = cur_patch(j).vertex;
             elem_node = cur_patch(j).nodes;
-            cpts = controlPts{i};
             if abs(elem_vertex(1))<tol_eq && abs(elem_vertex(2))<tol_eq
                 % get the vertex coordinates for the down_left element 
                 encoding = 1;
@@ -74,7 +74,7 @@ for i=1:numPatches
             end
         end
     end
-    patch2vertex{end+1} = patch_entry;
+    patch2vertex{i} = patch_entry;
     
 end
 

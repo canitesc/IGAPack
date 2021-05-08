@@ -3,7 +3,7 @@
 % Use C0 2-patch GIFT mapping
 
 close all
-clear all
+clear
 restoredefaultpath
 
 p = 3;
@@ -14,9 +14,9 @@ target_rel_error = 1e-5;
 %tagetScale < 1 --> more graded refinement
 targetScale = 0.75;
 
-addpath ./PHTutils
-addpath ./example_data
-addpath ../nurbs/inst
+addpath('./PHTutils')
+addpath('./example_data')
+addpath('../nurbs/inst')
 
 %Material properties
 Emod = 1e5;
@@ -42,8 +42,8 @@ for i=1:numPatches
     quadList{i} = 2:5;
 end
 
-%patches 1 and 2 are connected at the right(2)-left(4) edges respectively
-patchBoundaries = {1, 2, 2, 4};
+[vertices, vertex2patch, patch2vertex] = genVertex2PatchGift2D(GIFTmesh);
+[edge_list] = genEdgeList(patch2vertex);
 
 tic
 resultsArray = [];
@@ -56,8 +56,8 @@ while keep_refining
     disp(['Step ', num2str(num_steps)])
   %      figure
   %  plotPHTMeshMP( PHTelem, GIFTmesh )
-    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, patchBoundaries, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);
+    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, edge_list, p, q, quadList );
+    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, vertex2patch, edge_list, p, q);
     sizeBasis
     toc
     figure

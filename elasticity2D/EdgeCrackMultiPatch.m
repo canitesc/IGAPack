@@ -45,7 +45,16 @@ for i=1:numPatches
     quadList{i} = 2:5;    
 end
 
-patchBoundaries = {1, 2, 2, 4; 2, 3, 3, 1; 3, 4, 4, 2};
+[vertices, vertex2patch, patch2vertex] = genVertex2PatchGift2D(GIFTmesh);
+[edge_list] = genEdgeList(patch2vertex);
+
+% adjust the vertices and edges to create the crack
+% split vertex 4 into vertices 4 and 10
+vertex2patch{4} = [1,4];
+vertex2patch{10}  = [4,1];
+% split edge 3-4 into two edges, 3-4 and 3-10
+ede_list.n_3_n_4 = [1, 3];
+edge_list.n_3_n_10 = [4,1];
 
 tic
 
@@ -57,8 +66,8 @@ while keep_refining
     toc
     disp(['Step ', num2str(num_steps)])
 
-    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, patchBoundaries, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);        
+    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, edge_list, p, q, quadList );
+    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, vertex2patch, edge_list, p, q);    
     sizeBasis
     figure
     plotPHTMeshMP(PHTelem, GIFTmesh)

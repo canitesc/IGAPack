@@ -50,7 +50,7 @@ while keep_refining
    
     toc
     [ PHTelem, controlPts, dimBasis, quadList ] = checkConformingIso( PHTelem, controlPts, dimBasis, edge_list, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConformingIso( PHTelem, dimBasis, vertex2patch, edge_list, p, q);
+    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, vertex2patch, edge_list, p, q);
     sizeBasis
     toc
      plotPHTMeshIsoMP( PHTelem, controlPts, p, q )

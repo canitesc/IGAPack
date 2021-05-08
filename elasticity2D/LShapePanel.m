@@ -39,10 +39,8 @@ for i=1:numPatches
     quadList{i} = 2:5;
 end
 
-%patches 1 and 2 are connected at the down(1)-left(4) edges respectively
-%patches 2 and 3 are connected at the down(1)-left(4) edges respectively
-patchBoundaries = {1, 2, 1, 4; 2, 3, 1, 4};
-
+[vertices, vertex2patch, patch2vertex] = genVertex2PatchGift2D(GIFTmesh);
+[edge_list] = genEdgeList(patch2vertex);
 
 resultsArray = [];
 tic
@@ -60,8 +58,8 @@ while keep_refining
    
     toc
     
-    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, patchBoundaries, p, q, quadList );
-    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, patchBoundaries, p, q);
+    [ PHTelem, dimBasis, quadList ] = checkConforming( PHTelem, dimBasis, edge_list, p, q, quadList );
+    [ PHTelem, sizeBasis ] = zipConforming( PHTelem, dimBasis, vertex2patch, edge_list, p, q);
     %sizeBasis
     toc
     close all

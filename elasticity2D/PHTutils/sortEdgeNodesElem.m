@@ -1,4 +1,4 @@
-function [ nodes, elements ] = sortEdgeNodesElem( PHTelem, edge, p, q )
+function [ nodes, elements ] = sortEdgeNodesElem( PHTelem, edge, p, q , flagDir)
 %outputs the nodes and element along the given edge, sorted in the order in
 %which they appear in the parameter space
 %edge encoding: 1 - down, 2 - right, 3 - up, 4 - left
@@ -72,42 +72,62 @@ end
 %sort the elements according to vertex location
 for edgeIndex=1:numEdges
     if (edge(edgeIndex) == 1)
-        [verticesDown, indexSort] = sort(verticesDown);
+        [verticesDown, indexSort] = sort(flagDir(edgeIndex)*verticesDown);
         %rearrange the elements according to the sorting oder
         elementsDown = elementsDown(indexSort);
         elements{edgeIndex} = elementsDown;
+        if flagDir(edgeIndex)==-1
+            down_nodes_dir = flip(down_nodes);
+        else
+            down_nodes_dir = down_nodes;
+        end
         for elemIndex = 1:length(verticesDown)
-            nodes{edgeIndex} = [nodes{edgeIndex}, PHTelem(elementsDown(elemIndex)).nodesGlobal(down_nodes)];
+            nodes{edgeIndex} = [nodes{edgeIndex}, PHTelem(elementsDown(elemIndex)).nodes(down_nodes_dir)];
         end
     end
     
     if (edge(edgeIndex) == 2)
-        [verticesRight, indexSort] = sort(verticesRight);
+        [verticesRight, indexSort] = sort(flagDir(edgeIndex)*verticesRight);
         %rearrange the elements according to the sorting oder
         elementsRight=elementsRight(indexSort);
         elements{edgeIndex} = elementsRight;
+        if flagDir(edgeIndex)==-1
+            right_nodes_dir = flip(right_nodes);
+        else
+            right_nodes_dir = right_nodes;
+        end
         for elemIndex = 1:length(verticesRight)                                  
-            nodes{edgeIndex} = [nodes{edgeIndex}, PHTelem(elementsRight(elemIndex)).nodesGlobal(right_nodes)];
+            nodes{edgeIndex} = [nodes{edgeIndex}, PHTelem(elementsRight(elemIndex)).nodes(right_nodes_dir)];
         end
     end
     
     if (edge(edgeIndex) == 3)
-        [verticesUp, indexSort] = sort(verticesUp);        
+        [verticesUp, indexSort] = sort(flagDir(edgeIndex)*verticesUp);        
         %rearrange the elements according to the sorting oder
         elementsUp = elementsUp(indexSort);
         elements{edgeIndex} = elementsUp;
+        if flagDir(edgeIndex)==-1
+            up_nodes_dir = flip(up_nodes);
+        else
+            up_nodes_dir = up_nodes;
+        end
         for elemIndex = 1:length(verticesUp)
-            nodes{edgeIndex} = [nodes{edgeIndex}, PHTelem(elementsUp(elemIndex)).nodesGlobal(up_nodes)];
+            nodes{edgeIndex} = [nodes{edgeIndex}, PHTelem(elementsUp(elemIndex)).nodes(up_nodes_dir)];
         end
     end
     
     if (edge(edgeIndex) == 4)
-        [verticesLeft, indexSort] = sort(verticesLeft);
+        [verticesLeft, indexSort] = sort(flagDir(edgeIndex)*verticesLeft);
         %rearrange the elements according to the sorting oder
         elementsLeft = elementsLeft(indexSort);
         elements{edgeIndex} = elementsLeft;
+        if flagDir(edgeIndex)==-1
+            left_nodes_dir = flip(left_nodes);
+        else
+            left_nodes_dir = left_nodes;
+        end
         for elemIndex = 1:length(verticesLeft)
-            nodes{edgeIndex} = [nodes{edgeIndex}, PHTelem(elementsLeft(elemIndex)).nodesGlobal(left_nodes)];
+            nodes{edgeIndex} = [nodes{edgeIndex}, PHTelem(elementsLeft(elemIndex)).nodes(left_nodes_dir)];
         end
     end
     
