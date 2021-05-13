@@ -4,8 +4,8 @@ function nrbplot (nurbs, subd, varargin)
 % 
 % Calling Sequence:
 % 
-%   nrbplot (nrb, subd)
-%   nrbplot (nrb, subd, p, v)
+%   nrbplot (nrb, npnts)
+%   nrbplot (nrb, npnts, p, v)
 % 
 % INPUT:
 % 
@@ -52,6 +52,10 @@ if nargs < 2
   error ('Need a NURBS to plot and the number of subdivisions!');
 elseif rem(nargs+2,2)
   error ('Param value pairs expected')
+end
+
+if (any (nurbs.order < 2))
+  warning ('The plot with order smaller than 2 may not be correct')
 end
 
 % Default values
@@ -111,17 +115,13 @@ if (iscell (nurbs.knots))
  elseif (size (nurbs.knots,2) == 3) % plot the boundaries of a NURBS volume
   bnd = nrbextract (nurbs);
   hold_flag = ishold;
-  nrbplot (bnd(1), subd(2:3), varargin{:});  
-    
+  nrbplot (bnd(1), subd(2:3), varargin{:});
   hold on
-  nrbplot (bnd(2), subd(2:3), varargin{:});      
-  %nrbplot (bnd(3), subd([1 3]), varargin{:});  
-  nrbctrlplot(bnd(3))
-  nrbplot (bnd(4), subd([1 3]), varargin{:});    
-  nrbplot (bnd(5), subd(1:2), varargin{:});    
-  %nrbplot (bnd(6), subd(1:2), varargin{:});
-
-  
+  nrbplot (bnd(2), subd(2:3), varargin{:});
+  nrbplot (bnd(3), subd([1 3]), varargin{:});
+  nrbplot (bnd(4), subd([1 3]), varargin{:});
+  nrbplot (bnd(5), subd(1:2), varargin{:});
+  nrbplot (bnd(6), subd(1:2), varargin{:});
   
   if (~hold_flag)
     hold off

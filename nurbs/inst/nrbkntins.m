@@ -35,11 +35,11 @@ function inurbs = nrbkntins(nurbs,iknots)
 % 
 %   Inserts knots into the NURBS data structure, these can be knots at
 %   new positions or at the location of existing knots to increase the
-%   multiplicity. Note that the knot multiplicity cannot be increased
-%   beyond the order of the spline. Knots along the V direction can only
-%   inserted into NURBS surfaces, not curve that are always defined along
-%   the U direction. This function use the B-Spline function bspkntins,
-%   which interfaces to an internal 'C' routine.
+%   multiplicity. The knot multiplicity can be increased up to the order of
+%   the spline. Any further increase of the multiplicity will generate zero
+%   basis functions, but not cause any error in the code.
+%   This function use the B-Spline function bspkntins, which interfaces to 
+%   an internal 'C' routine.
 % 
 % Examples:
 % 
@@ -59,7 +59,9 @@ function inurbs = nrbkntins(nurbs,iknots)
 %
 % Note:
 %
-%   No knot multiplicity will be increased beyond the order of the spline.
+%   The knot multiplicty can be increased beyond the order of the spline
+%   without causing errors, but the added basis functions will be equal to
+%   zero.
 %
 %    Copyright (C) 2000 Mark Spink, 2010 Rafael Vazquez
 %

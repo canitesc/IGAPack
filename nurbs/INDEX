@@ -6,6 +6,9 @@ Basic operations for NURBS curves, surfaces and volumes
  nrbderiv
  nrbdeval
  nrbeval
+ nrbeval_der_w
+ nrbeval_der_p
+ nrbinverse
  crvkntremove
 Operations for constructing NURBS curves and surfaces
  nrbtform
@@ -15,7 +18,10 @@ Operations for constructing NURBS curves and surfaces
  nrbline
  nrbcirc
  nrbrect
+ nrbsquare
  nrb4surf
+ nrbspheretiling
+ nrbspheretile
  nrbcylind
  nrbextract
  nrbextrude
@@ -24,8 +30,12 @@ Operations for constructing NURBS curves and surfaces
  nrbcoons
  nrbtestcrv
  nrbtestsrf
+ nrbclamp
  nrbunclamp
  nrbmultipatch
+ nrbglue
+ nrbmodp
+ nrbmodw
 Plot and export
  nrbplot
  nrbctrlplot
@@ -37,8 +47,11 @@ B-Spline functions
  bspderiv
  bspkntins
  bspdegelev
+ bspinterpcrv
+ bspinterpsurf
  basisfun
  basisfunder
+ basiskntins
  findspan
  numbasisfun
  tbasisfun
@@ -55,23 +68,21 @@ NURBS geometric entities and functions
  nrbcrvderiveval
  nrbsurfderiveval
 Knots construction and refinement
+ aveknt
  kntuniform
  kntrefine
  kntbrkdegreg
  kntbrkdegmult
 Vector and Transformation Utilities 
- vecnorm
+ vecnormalize
  vecmag
  vecmag2
  vecangle
  vecdot
  veccross
+ vecrot
  vecrotx
  vecroty
  vecrotz
- vecrot
  vecscale
  vectrans
-Misc Utilities
- deg2rad
- rad2deg

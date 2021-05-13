@@ -7,6 +7,8 @@ function [B, N] = nrb_srf_basisfun__ (points, nrb);
 %   COPYING for details.  This is free software, and you are welcome
 %   to distribute it under the conditions laid out in COPYING.
 
+    warning ('nrb_srf_basisfun__ is deprecated. Use nrbbasisfun, instead')
+
     m    = size (nrb.coefs, 2) -1;
     n    = size (nrb.coefs, 3) -1;
     

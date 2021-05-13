@@ -1,14 +1,17 @@
-function nrbctrlplot (nurbs)
+function nrbctrlplot (nurbs, nsub)
 
 % NRBCTRLPLOT: Plot a NURBS entity along with its control points.
 % 
 % Calling Sequence:
 % 
 %   nrbctrlplot (nurbs)
+%   nrbkntplot(nurbs, npnts)
 % 
 % INPUT:
 % 
 %   nurbs: NURBS curve, surface or volume, see nrbmak.
+%   npnts: Number of evaluation points, for a surface or volume, a row 
+%       vector with the number of points along each direction.
 % 
 % Example:
 %
@@ -51,8 +54,12 @@ hold_flag = ishold;
 
 if (iscell (nurbs.knots))
   if (size (nurbs.knots,2) == 3)
-    nsub = 100;
-    nrbplot (nurbs, [nsub nsub nsub], 'light', light, 'colormap', cmap);
+    if (nargin < 2)
+      nsub = [25 25 25];
+    elseif (numel(nsub) == 1)
+      nsub = [nsub nsub nsub];
+    end
+    nrbplot (nurbs, nsub, 'light', light, 'colormap', cmap);
     hold on
 % Plot the control points
     coefs = bsxfun (@rdivide, nurbs.coefs(1:3,:,:,:), nurbs.coefs(4,:,:,:));
@@ -81,8 +88,12 @@ if (iscell (nurbs.knots))
 
   elseif (size (nurbs.knots,2) == 2) % plot a NURBS surface
 
-    nsub = 100;
-    nrbplot (nurbs, [nsub nsub], 'light', light, 'colormap', cmap);
+    if (nargin < 2)
+      nsub = [50 50];
+    elseif (numel(nsub) == 1)
+      nsub = [nsub nsub];
+    end
+    nrbplot (nurbs, nsub, 'light', light, 'colormap', cmap);
     hold on
 
 % And plot the control net
@@ -100,7 +111,9 @@ if (iscell (nurbs.knots))
     end
   end
 else % plot a NURBS curve
-  nsub = 1000;
+  if (nargin < 2)
+    nsub = 1000;
+  end
   nrbplot (nurbs, nsub);
   hold on
 

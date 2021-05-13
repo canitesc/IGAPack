@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 Carlo de Falco
+/* Copyright (C) 2009, 2020 Carlo de Falco, Rafael Vazquez
   
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 
 #include <octave/oct.h>
 #include "low_level_functions.h"
-#include <omp.h>
+//#include <omp.h>
 
 static bool bspeval_bad_arguments(const octave_value_list& args);
 
@@ -42,6 +42,9 @@ DEFUN_DLD(bspeval, args, nargout,"\
 {
 
   octave_value_list retval;
+  if (nargout != 1 || args.length () != 4)
+    print_usage ();
+
   if (!bspeval_bad_arguments (args))
     {      
       int       d = args(0).int_value();
@@ -49,51 +52,48 @@ DEFUN_DLD(bspeval, args, nargout,"\
       RowVector k = args(2).row_vector_value();
       NDArray   u = args(3).array_value();
       
-      octave_idx_type nu = u.length();
+      octave_idx_type nu = u.numel ();
       octave_idx_type mc = c.rows(),
         nc = c.cols();
       
       Matrix p(mc, nu, 0.0);
       
-      if (!error_state)
-        {
-          if (nc + d == k.length() - 1) 
-            {	 
-#pragma omp parallel default (none) shared (d, c, k, u, nu, mc, nc, p)
-              {
-                RowVector N(d+1,0.0);
-                int s, tmp1;
-                double tmp2;
-#pragma omp for 
-                for (octave_idx_type col=0; col<nu; col++)
-                  {	
-                    //printf ("thread %d, col %d\n", omp_get_thread_num (), col);
-                    s = findspan (nc-1, d, u(col), k);
-                    basisfun (s, u(col), d, k, N);    
-                    tmp1 = s - d;                
-                    for (octave_idx_type row(0); row<mc; row++)
-                      {
-                        tmp2 = 0.0;
-                        for ( octave_idx_type i(0); i<=d; i++)                   
-                          tmp2 +=  N(i)*c(row,tmp1+i);	  
-                        p(row,col) = tmp2;
-                      }             
-                  }   
-              }// end omp 
-            }
-          else 
-            {
-              error("inconsistent bspline data, d + columns(c) != length(k) - 1.");
-            }
-          retval(0) = octave_value(p);
+      if (nc + d == k.numel () - 1) 
+        {	 
+          //#pragma omp parallel default (none) shared (d, c, k, u, nu, mc, nc, p)
+          {
+            RowVector N(d+1,0.0);
+            int s, tmp1;
+            double tmp2;
+            //#pragma omp for 
+            for (octave_idx_type col=0; col<nu; col++)
+              {	
+                //printf ("thread %d, col %d\n", omp_get_thread_num (), col);
+                s = findspan (nc-1, d, u(col), k);
+                basisfun (s, u(col), d, k, N);    
+                tmp1 = s - d;                
+                for (octave_idx_type row(0); row<mc; row++)
+                  {
+                    tmp2 = 0.0;
+                    for ( octave_idx_type i(0); i<=d; i++)                   
+                      tmp2 +=  N(i)*c(row,tmp1+i);	  
+                    p(row,col) = tmp2;
+                  }             
+              }   
+          }// end omp 
         }
+      else 
+        {
+          error("inconsistent bspline data, d + columns(c) != numel(k) - 1.");
+        }
+      retval(0) = octave_value(p);
     }      
   return retval;
 } 
 
 static bool bspeval_bad_arguments (const octave_value_list& args) 
 { 
-  if (args.length() != 4)
+  if (args.length () != 4)
     {
       error("bspeval: wrong number of input arguments.");
       return true;
@@ -113,7 +113,7 @@ static bool bspeval_bad_arguments (const octave_value_list& args)
       error("bspeval: the knot vector should be a real vector."); 
       return true; 
     } 
-  if (!args(3).is_real_type()) 
+  if (!args(3).isreal()) 
     { 
       error("bspeval: the set of parametric points should be an array of doubles."); 
       return true; 

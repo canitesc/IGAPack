@@ -57,6 +57,7 @@ rhs = zeros(dim*sizeBasis,1);
 
 %assemble the stiffness matrix and RHS
 elementCounter = 0;
+domainArea = 0;
 for indexPatch = 1:length(PHTelem)
     for i=1:length(PHTelem{indexPatch})
         if isempty(PHTelem{indexPatch}(i).children)
@@ -114,6 +115,7 @@ for indexPatch = 1:length(PHTelem)
                     B(2:2:2*nument,3) = dR(1,:);
                     
                     %TODO: implement non-zero volume force
+                    domainArea = domainArea + scalefac * gauss_weight_x(ii).*gauss_weight_y(jj).*J;
                     localstiff = localstiff + B * Cmat * B' * scalefac * gauss_weight_x(ii).*gauss_weight_y(jj).*J;
                     
                 end
@@ -126,5 +128,6 @@ for indexPatch = 1:length(PHTelem)
     end
 end
 stiff = sparse(II,JJ,S,2*sizeBasis,2*sizeBasis);
+disp(['Domain area is ', num2str(domainArea)])
 disp(['The mesh has ', num2str(elementCounter), ' active elements.'])
 

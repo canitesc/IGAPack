@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 Carlo de Falco
+/* Copyright (C) 2009, 2020 Carlo de Falco, Rafael Vazquez
   
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -41,23 +41,25 @@ Calling Sequence:\n\
 {
 
   octave_value_list retval;
+
+  if (nargout != 1 || args.length () != 4)
+    print_usage ();
+
   const NDArray   i = args(0).array_value();
   const NDArray   u = args(1).array_value();
   int       p = args(2).idx_type_value();
   const RowVector U = args(3).row_vector_value();
   RowVector N(p+1, 0.0);
-  Matrix    B(u.length(), p+1, 0.0);
+  Matrix    B(u.numel (), p+1, 0.0);
   
-  if (!error_state)
+  for (octave_idx_type ii(0); ii < u.numel (); ii++)
     {
-      for (octave_idx_type ii(0); ii < u.length(); ii++)
-	{
-	  basisfun(int(i(ii)), u(ii), p, U, N);
-	  B.insert(N, ii, 0);
-	}
-      
-      retval(0) = octave_value(B);
+      basisfun(int(i(ii)), u(ii), p, U, N);
+      B.insert(N, ii, 0);
     }
+      
+  retval(0) = octave_value(B);
+
   return retval;
 } 
 

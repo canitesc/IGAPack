@@ -29,7 +29,7 @@ function nurbs = nrbtform(nurbs,tmat)
 % 
 %   Rotate a square by 45 degrees about the z axis.
 %
-%   rsqr = nrbtform(nrbrect(), vecrotz(deg2rad(45)));
+%   rsqr = nrbtform(nrbrect(), vecrotz(45*pi/180));
 %   nrbplot(rsqr, 1000);
 % 
 % See also:

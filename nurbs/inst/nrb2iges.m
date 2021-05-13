@@ -97,7 +97,7 @@ function nrb2iges (nurbs, filename)
   % Columns 65 to 72 are reserved for a parameter data index which is an
   % odd number counter, right justified in the field, which begins at the
   % number 1 and progresses in odd increments for each entity entered.
-  % Column 73 is reserved for the letter ‘P’ to indicate the data element
+  % Column 73 is reserved for the letter "P" to indicate the data element
   % belongs to the parameter data section. 
   % Columns 74 to 80 are reserved for the sequence number. Each line of 
   % data corresponds to the entity type as specified in the global section.

@@ -22,8 +22,6 @@ Emod=1000;
 nu=0.25;
 bound_press = 2;
 
-shearMod=Emod/(2*(1+nu));
-kappa=3-4*nu;
 %elasticity matrix (plane stress)
 %Cmat=Emod/(1-nu^2)*[1, nu, 0; nu, 1, 0; 0, 0, (1-nu)/2];
 %elasticity matrix (plane strain)
@@ -42,7 +40,7 @@ for i=1:numPatches
     quadList{i} = 2:5;
 end
 
-[vertices, vertex2patch, patch2vertex] = genVertex2PatchGift2D(GIFTmesh);
+[~, vertex2patch, patch2vertex] = genVertex2PatchGift2D(GIFTmesh);
 [edge_list] = genEdgeList(patch2vertex);
 
 resultsArray = [];
@@ -90,7 +88,6 @@ while keep_refining
     plotSolPHTElasticMP( sol0, PHTelem, GIFTmesh, p, q, Cmat, 1 )
     
     disp('Estimating the error...')
-    %[quadRef,estErrorGlobTotal]=recoverDerivEstGalMP2alphaAll3(PHTelem, GIFTmesh, sol0, target_rel_error, quadList, p, q, Cmat, targetScale);
     [quadRef,estErrorGlobTotal]=recoverDerivEstGalMP2alphaDorfler(PHTelem, GIFTmesh, sol0, quadList, p, q, Cmat, targetScale);
     estErrorGlobTotal
 

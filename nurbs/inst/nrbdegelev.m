@@ -143,7 +143,7 @@ if iscell(nurbs.knots)
 else
 
   % NURBS represents a curve
-  if isempty(ntimes)
+  if (isempty(ntimes) || ntimes == 0)
     coefs = nurbs.coefs;
     knots = nurbs.knots;
   else

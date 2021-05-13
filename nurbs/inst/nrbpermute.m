@@ -8,7 +8,7 @@ function tvol = nrbpermute (vol, ord)
 %
 % INPUT:
 % 
-%   vol		: NURBS volume or surface, see nrbmak.
+%   vol	   : NURBS volume or surface, see nrbmak.
 %   order   : the order to rearrange the directions of the NURBS entity.
 %
 % OUTPUT:
@@ -18,7 +18,7 @@ function tvol = nrbpermute (vol, ord)
 % Description:
 % 
 %   Utility function that rearranges the directions of a NURBS volume or
-%   surface. For surfaces, nrbpermute(srf,[1 2]) is the same as
+%   surface. For surfaces, nrbpermute(srf,[2 1]) is the same as
 %   nrbtransp(srf). NURBS curves cannot be rearranged.
 %
 % Example:

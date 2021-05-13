@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 Carlo de Falco
+/* Copyright (C) 2009, 2020 Carlo de Falco, Rafael Vazquez
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -46,6 +46,9 @@ DEFUN_DLD(surfderiveval, args, nargout,"\
   
   octave_value_list retval;
 
+  if (nargout != 1 || args.length () != 10)
+    print_usage ();
+    
   octave_idx_type n = args(0).idx_type_value ();
   octave_idx_type p = args(1).idx_type_value ();
   RowVector U = args(2).row_vector_value (false, true);
@@ -57,12 +60,10 @@ DEFUN_DLD(surfderiveval, args, nargout,"\
   double v = args(8).double_value ();
   octave_idx_type d = args(9).idx_type_value ();
 
-  if (! error_state)
-    {
-      Matrix skl;
-      surfderiveval (n, p, U, m, q, V, P, u, v, d, skl);
-      retval(0) = octave_value (skl);
-    }
+  Matrix skl;
+  surfderiveval (n, p, U, m, q, V, P, u, v, d, skl);
+  retval(0) = octave_value (skl);
+
   return retval;
 }
 

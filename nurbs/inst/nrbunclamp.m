@@ -1,16 +1,17 @@
 function ucrv = nrbunclamp (crv, k, xdim)
 
-% NRBUNCLAMP: Compute the knot vector and control points of the unclamped curve
+% NRBUNCLAMP: Compute the knot vector and control points of the unclamped curve or surface.
 %
 % Calling Sequence:
 % 
+%   ucrv = nrbrunclamp (crv)
 %   ucrv = nrbrunclamp (crv, k)
 %   ucrv = nrbrunclamp (crv, k, dim)
 % 
 % INPUT:
 % 
-%   crv	: NURBS curve, see nrbmak.
-%   k   : continuity for the unclamping (from 0 up to p-1)
+%   crv	: NURBS curve or surface, see nrbmak.
+%   k   : continuity for the unclamping, from 0 up to p-1 (p-1 by default).
 %   dim : dimension in which to unclamp (all by default).
 %
 % OUTPUT:
@@ -24,7 +25,7 @@ function ucrv = nrbunclamp (crv, k, xdim)
 %
 %    Adapted from Algorithm A12.1 from 'The NURBS BOOK' pg577.
 % 
-%    Copyright (C) 2013, 2014 Rafael Vazquez
+%    Copyright (C) 2013, 2014, 2017 Rafael Vazquez
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
@@ -50,6 +51,9 @@ end
 ndim = numel (knt);
 if (nargin < 3)
   xdim = 1:ndim;
+end
+if (nargin < 2 || isempty (k))
+  k = crv.order - 2;
 end
 
 %if (iscell (crv.knots))

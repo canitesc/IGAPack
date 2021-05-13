@@ -1,4 +1,75 @@
-Summary of important user-visible changes for nurbs 1.3.8:
+Summary of important user-visible changes for nurbs 1.4.3:
+-------------------------------------------------------------------
+* inst/nrbctrlplot: allow the number of points for the plot as input
+* inst/nrbkntplot: allow the number of points for the plot as input
+* inst/nrbmak: added consistency check
+
+Summary of important user-visible changes for nurbs 1.4.2:
+-------------------------------------------------------------------
+* remove use of deprecated functionality in oct-files
+
+Summary of important user-visible changes for nurbs 1.4.1:
+-------------------------------------------------------------------
+* inst/nrbglue: added new function
+* inst/nrbinverse: add a way to recognize non-convergence
+
+Summary of important user-visible changes for nurbs 1.4.0:
+-------------------------------------------------------------------
+* inst/basiskntins: return the identity when there is no insertion
+* inst/nrbderiv: 3rd and 4th order derivatives
+* inst/nrbdeval: 3rd and 4th order derivatives
+* inst/nrbruled: extended to trivariates
+* inst/nrbmak: added the possibility to normalize the knot vector
+* inst/vecnormalize: renamed the old function vecnorm
+
+Summary of important user-visible changes for nurbs 1.3.14:
+-------------------------------------------------------------------
+* inst/nrbextract: possibility to extract a list of boundary sides
+* inst/nrbmultipatch: added tolerance as an optional argument
+* inst/nrbspheretiling: added new function
+* inst/nrbspheretile: added new function
+
+Summary of important user-visible changes for nurbs 1.3.13:
+-------------------------------------------------------------------
+ * inst/aveknt.m: added new function
+ * inst/nrbclamp.: added new function
+ * inst/nrbmodp.m: added new function
+ * inst/nrbmodw.m: added new function
+ * inst/nrbeval_der_p.m: added new function
+ * inst/nrbeval_der_w.m: added new function
+ * inst/nrbsquare.m: added new function
+ * inst/bspinterpcrv.m: added new function
+ * inst/bspinterpsurf.m: added new function
+ * inst/nrbinverse.m: added new function
+ * inst/nrbbasisfun.m: faster version for cell-arrays. Working version for volumes
+ * inst/nrbbasisfunder.m: faster version for cell-arrays. Working version for volumes
+ * inst/nrbnumbasisfun.m: faster version for cell-arrays. Working version for volumes. Now using 0-based indexing for cuves (different from basisfun).
+
+Summary of important user-visible changes for nurbs 1.3.12:
+-------------------------------------------------------------------
+ * nrbmultipatch: check if two faces match more accurately
+ 
+Summary of important user-visible changes for nurbs 1.3.11:
+-------------------------------------------------------------------
+ * nrbextract, nrbmultipatch: generalized for curves
+
+ * inst/deg2rad, inst/rad2deg: removed functions from the package
+
+Summary of important user-visible changes for nurbs 1.3.10:
+-------------------------------------------------------------------
+
+ ** 1.3.10 is being released to allow compatibility with Octave 4.0
+
+ * src/low_level_functions.cc(findspan): return an error if a point
+                                         is outside the knotspan
+
+ * inst/nrbexport: changed the format of geopdes files
+
+ * inst/nrbbasisfun: fixed bug to return indices in the 1D case
+
+ * inst/basiskntins: added new function to compute subdivision coefficients
+
+Summary of important user-visible changes for nurbs 1.3.9:
 -------------------------------------------------------------------
 
  * inst/nrbexport: export multipatch geometries

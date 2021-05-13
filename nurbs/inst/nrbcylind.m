@@ -67,7 +67,7 @@ surf = nrbextrude(nrbcirc(radius,center,sang,eang),[0.0 0.0 height]);
 end
 
 %!demo
-%! srf = nrbcylind(3,1,[],deg2rad(270),deg2rad(180));
+%! srf = nrbcylind(3,1,[],3*pi/2,pi);
 %! nrbplot(srf,[20,20]);
 %! axis equal;
 %! title('Cylinderical section by extrusion of a circular arc.');

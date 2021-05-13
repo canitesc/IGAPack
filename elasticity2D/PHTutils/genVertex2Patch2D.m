@@ -38,7 +38,7 @@ for i=1:numPatches
     cur_patch = patch_list{i};
     patch_entry = zeros(1, 4);
     num_elem = length(cur_patch);
-    cpts = controlPts{i};
+    cpts = [controlPts{i}(:,1:2), zeros(size(controlPts{i},1),1)];
     for j = 1:num_elem
         if isempty(cur_patch(j).children)
             elem_vertex = cur_patch(j).vertex;

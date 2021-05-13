@@ -39,7 +39,7 @@ for i=1:numPatches
     quadList{i} = 2:5;
 end
 
-[vertices, vertex2patch, patch2vertex] = genVertex2PatchGift2D(GIFTmesh);
+[~, vertex2patch, patch2vertex] = genVertex2PatchGift2D(GIFTmesh);
 [edge_list] = genEdgeList(patch2vertex);
 
 resultsArray = [];

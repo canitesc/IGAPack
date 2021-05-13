@@ -1,15 +1,18 @@
-function nrbkntplot (nurbs)
+function nrbkntplot (nurbs, nsub)
 
 % NRBKNTPLOT: Plot a NURBS entity with the knots subdivision.
 % 
 % Calling Sequence:
 % 
 %   nrbkntplot(nurbs)
+%   nrbkntplot(nurbs, npnts)
 % 
 % INPUT:
 % 
 %   nurbs: NURBS curve, surface or volume, see nrbmak.
-% 
+%   npnts: Number of evaluation points, for a surface or volume, a row 
+%       vector with the number of points along each direction.
+%
 % Example:
 %
 %   Plot the test surface with its knot vector
@@ -20,7 +23,7 @@ function nrbkntplot (nurbs)
 % 
 %   nrbctrlplot
 %
-%    Copyright (C) 2011, 2012 Rafael Vazquez
+%    Copyright (C) 2011, 2012, 2021 Rafael Vazquez
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
@@ -49,47 +52,59 @@ hold_flag = ishold;
 
 if (iscell (nurbs.knots))
  if (size (nurbs.knots,2) == 2) % plot a NURBS surface
-   nsub = 100;
-   nrbplot (nurbs, [nsub nsub], 'light', light, 'colormap', cmap);
+   if (nargin < 2)
+     nsub = [50 50];
+   elseif (numel(nsub) == 1)
+     nsub = [nsub nsub];
+   end
+   nrbplot (nurbs, nsub, 'light', light, 'colormap', cmap);
    hold on
 
    % And plot the knots
    knt1 = unique (nurbs.knots{1}(nurbs.order(1):end-nurbs.order(1)+1));
    knt2 = unique (nurbs.knots{2}(nurbs.order(2):end-nurbs.order(2)+1));
-   p1 = nrbeval (nurbs, {knt1, linspace(knt2(1),knt2(end),nsub)});
-   p2 = nrbeval (nurbs, {linspace(knt1(1),knt1(end),nsub), knt2});
+   p1 = nrbeval (nurbs, {knt1, linspace(knt2(1),knt2(end),nsub(2)+1)});
+   p2 = nrbeval (nurbs, {linspace(knt1(1),knt1(end),nsub(1)+1), knt2});
 
   if (any (nurbs.coefs(3,:)))
     % surface in a 3D space
     for ii = 1:numel(knt1)
-      plot3 (squeeze(p1(1,ii,:)), squeeze(p1(2,ii,:)), squeeze(p1(3,ii,:)));
+      plot3 (squeeze(p1(1,ii,:)), squeeze(p1(2,ii,:)), squeeze(p1(3,ii,:)),'k');
     end
     for ii = 1:numel(knt2)
-      plot3 (squeeze(p2(1,:,ii)), squeeze(p2(2,:,ii)), squeeze(p2(3,:,ii))); 
+      plot3 (squeeze(p2(1,:,ii)), squeeze(p2(2,:,ii)), squeeze(p2(3,:,ii)),'k'); 
     end
   else
     % plain surface
     for ii = 1:numel(knt1)
-      plot (squeeze(p1(1,ii,:)), squeeze (p1(2,ii,:))); 
+      plot (squeeze(p1(1,ii,:)), squeeze (p1(2,ii,:)),'k'); 
     end
     for ii = 1:numel(knt2)
-      plot (p2(1,:,ii),p2(2,:,ii));
+      plot (p2(1,:,ii),p2(2,:,ii),'k');
     end
   end
 
 
 
  elseif (size (nurbs.knots,2) == 3) % plot a NURBS volume
+   if (nargin < 2)
+     nsub = [25 25 25];
+   elseif (numel(nsub) == 1)
+     nsub = [nsub nsub nsub];
+   end
    % Plot the boundaries
    bnd = nrbextract (nurbs);
-   nrbkntplot (bnd(1));
+   nrbkntplot (bnd(1), nsub(2:3));
    hold on
    for iface = 2:6
-     nrbkntplot (bnd(iface));
+     inds = setdiff(1:3, ceil(iface/2));
+     nrbkntplot (bnd(iface), nsub(inds));
    end
  end
 else % plot a NURBS curve
-  nsub = 1000;
+  if (nargin < 2)
+    nsub = 1000;
+  end
   nrbplot (nurbs, nsub);
   hold on
 
@@ -98,9 +113,9 @@ else % plot a NURBS curve
    p = nrbeval (nurbs, unique (nurbs.knots(order:end-order+1)));
 
    if (any (nurbs.coefs(3,:))) % plot a 3D curve
-     plot3 (p(1,:), p(2,:), p(3,:), 'x'); 
+     plot3 (p(1,:), p(2,:), p(3,:), 'rx'); 
    else                     % plot a 2D curve
-     plot (p(1,:), p(2,:), 'x'); 
+     plot (p(1,:), p(2,:), 'rx'); 
    end
 
 end

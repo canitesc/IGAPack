@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 Carlo de Falco
+/* Copyright (C) 2009, 2020 Carlo de Falco, Rafael Vazquez
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -44,6 +44,9 @@ DEFUN_DLD(curvederivcpts, args, nargout,"\
   
   octave_value_list retval;
 
+  if (nargout != 1 || (args.length () != 5 && args.length() != 7))
+    print_usage ();
+    
   octave_idx_type n = args(0).idx_type_value ();
   octave_idx_type p = args(1).idx_type_value ();
   RowVector U = args(2).row_vector_value (false, true);
@@ -59,15 +62,13 @@ DEFUN_DLD(curvederivcpts, args, nargout,"\
   else  if (args.length () > 5)
     print_usage ();
 
-  if (! error_state)  
-    {
-      octave_idx_type r = r2 - r1;
-      Matrix pk (d+1 <= r+1 ? d+1 : r+1, r+1, 0.0);
+  octave_idx_type r = r2 - r1;
+  Matrix pk (d+1 <= r+1 ? d+1 : r+1, r+1, 0.0);
 
-      curvederivcpts (n, p, U, P, d, r1, r2, pk);
+  curvederivcpts (n, p, U, P, d, r1, r2, pk);
 
-      retval(0) = octave_value (pk);
-    }
+  retval(0) = octave_value (pk);
+
   return retval;
 }
 

@@ -1,4 +1,4 @@
-function [ic,ik] = bspkntins(d,c,k,u)
+function [ic,ik,C] = bspkntins(d,c,k,u)
 
 % BSPKNTINS:  Insert knots into a B-Spline
 %
@@ -20,7 +20,7 @@ function [ic,ik] = bspkntins(d,c,k,u)
 % 
 %  Modified version of Algorithm A5.4 from 'The NURBS BOOK' pg164.
 % 
-%    Copyright (C) 2000 Mark Spink, 2007 Daniel Claxton, 2010 Rafael Vazquez
+%    Copyright (C) 2000 Mark Spink, 2007 Daniel Claxton, 2010-2016 Rafael Vazquez
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
@@ -51,57 +51,51 @@ nk = numel(k);
 ic = zeros(mc,nc+nu);                                %   double **ictrl = vec2mat(ic, mc, nc+nu);
 ik = zeros(1,nk+nu);
                                                      %
-n = size(c,2) - 1;                                   %   n = nc - 1;
-r = length(u) - 1;                                   %   r = nu - 1;
+n = nc - 1;                                          %   n = nc - 1;
+r = nu - 1;                                          %   r = nu - 1;
                                                      %
 m = n + d + 1;                                       %   m = n + d + 1;
 a = findspan(n, d, u(1), k);                         %   a = findspan(n, d, u[0], k);
 b = findspan(n, d, u(r+1), k);                       %   b = findspan(n, d, u[r], k);
 b = b+1;                                             %   ++b;
                                                      %
-for q=0:mc-1                                         %   for (q = 0; q < mc; q++)  {
-   for j=0:a-d, ic(q+1,j+1) = c(q+1,j+1); end        %     for (j = 0; j <= a-d; j++) ictrl[j][q] = ctrl[j][q];
-   for j=b-1:n, ic(q+1,j+r+2) = c(q+1,j+1); end      %     for (j = b-1; j <= n; j++) ictrl[j+r+1][q] = ctrl[j][q];
-end                                                  %   }
-
-for j=0:a, ik(j+1) = k(j+1); end                     %   for (j = 0; j <= a; j++)   ik[j] = k[j];
-for j=b+d:m, ik(j+r+2) = k(j+1); end                 %   for (j = b+d; j <= m; j++) ik[j+r+1] = k[j];
+                                                     %   for (q = 0; q < mc; q++)  {
+ic(:,1:a-d+1) = c(:,1:a-d+1);                        %     for (j = 0; j <= a-d; j++) ictrl[j][q] = ctrl[j][q];
+ic(:,b+nu:nc+nu) = c(:,b:nc);                        %     for (j = b-1; j <= n; j++) ictrl[j+r+1][q] = ctrl[j][q];
+                                                     %   }
+                                                     
+ik(1:a+1) = k(1:a+1);                                %   for (j = 0; j <= a; j++)   ik[j] = k[j];
+ik(b+d+nu+1:m+nu+1) = k(b+d+1:m+1);                      %   for (j = b+d; j <= m; j++) ik[j+r+1] = k[j];
                                                      %
-i = b + d - 1;                                       %   i = b + d - 1;
-s = b + d + r;                                       %   s = b + d + r;
+ii = b + d - 1;                                      %   i = b + d - 1;
+ss = ii + nu;                                        %   s = b + d + r;
 
-for j=r:-1:0                                         %   for (j = r; j >= 0; j--) {
-   while u(j+1) <= k(i+1) && i > a                   %     while (u[j] <= k[i] && i > a) {
-       for q=0:mc-1                                  %       for (q = 0; q < mc; q++)
-           ic(q+1,s-d) = c(q+1,i-d);                 %         ictrl[s-d-1][q] = ctrl[i-d-1][q];
-       end                                              
-       ik(s+1) = k(i+1);                             %       ik[s] = k[i];
-       s = s - 1;                                    %       --s;
-       i = i - 1;                                    %       --i;
-   end                                               %     }
-   
-   for q=0:mc-1                                      %     for (q = 0; q < mc; q++)
-       ic(q+1,s-d) = ic(q+1,s-d+1);                  %       ictrl[s-d-1][q] = ictrl[s-d][q];
-   end
+for jj=r:-1:0                                        %   for (j = r; j >= 0; j--) {
+   ind = (a+1):ii;                                   %     while (u[j] <= k[i] && i > a) {
+   ind = ind(u(jj+1)<=k(ind+1));                     %       for (q = 0; q < mc; q++)
+   ic(:,ind+ss-ii-d) = c(:,ind-d);                   %         ictrl[s-d-1][q] = ctrl[i-d-1][q];
+   ik(ind+ss-ii+1) = k(ind+1);                       %       ik[s] = k[i];
+   ii = ii - numel(ind);                             %       --i;
+   ss = ss - numel(ind);                             %       --s;
+                                                     %     }
+   ic(:,ss-d) = ic(:,ss-d+1);                        %     ictrl[s-d-1][q] = ictrl[s-d][q];
 
    for l=1:d                                         %     for (l = 1; l <= d; l++)  {
-       ind = s - d + l;                              %       ind = s - d + l;
-       alfa = ik(s+l+1) - u(j+1);                    %       alfa = ik[s+l] - u[j];
-       if abs(alfa) == 0                             %       if (fabs(alfa) == 0.0)
-           for q=0:mc-1                              %         for (q = 0; q < mc; q++)
-               ic(q+1,ind) = ic(q+1,ind+1);          %           ictrl[ind-1][q] = ictrl[ind][q];
-           end
+       ind = ss - d + l;                             %       ind = s - d + l;
+       alfa = ik(ss+l+1) - u(jj+1);                  %       alfa = ik[s+l] - u[j];
+       if abs(alfa) == 0                             %       if (fabs(alfa) == 0.0)    
+           ic(:,ind) = ic(:,ind+1);                  %         for (q = 0; q < mc; q++)
+                                                     %           ictrl[ind-1][q] = ictrl[ind][q];
        else                                          %       else  {
-           alfa = alfa/(ik(s+l+1) - k(i-d+l+1));     %         alfa /= (ik[s+l] - k[i-d+l]);
-           for q=0:mc-1                              %         for (q = 0; q < mc; q++)
-               tmp = (1-alfa)*ic(q+1,ind+1);
-               ic(q+1,ind) = alfa*ic(q+1,ind) + tmp; %           ictrl[ind-1][q] = alfa*ictrl[ind-1][q]+(1.0-alfa)*ictrl[ind][q];
-           end
+           alfa = alfa/(ik(ss+l+1) - k(ii-d+l+1));   %         alfa /= (ik[s+l] - k[i-d+l]);
+                      
+           tmp = (1-alfa) * ic(:,ind+1);             %         for (q = 0; q < mc; q++)
+           ic(:,ind) = alfa*ic(:,ind) + tmp;         %           ictrl[ind-1][q] = alfa*ictrl[ind-1][q]+(1.0-alfa)*ictrl[ind][q];
        end                                           %       }
    end                                               %     }
    %
-   ik(s+1) = u(j+1);                                 %     ik[s] = u[j];
-   s = s - 1;                                        %     --s;
+   ik(ss+1) = u(jj+1);                               %     ik[s] = u[j];
+   ss = ss - 1;
 end                                                  %   }
                                                      %
                                                      %   freevec2mat(ctrl);

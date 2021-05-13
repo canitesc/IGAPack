@@ -158,13 +158,14 @@ for indexPatch = 1:numPatches
     end
 end
 
-factor = 10000;
+factor = 10;
 
 figure
 trisurf(element4,physcoord(:,1)+dispcoord(:,1)*factor, physcoord(:,2)+dispcoord(:,2)*factor, zeros(size(physcoord,1),1), sigmacoord(:,1), 'EdgeColor','none','facecolor','interp')
 view(0,90)
 title('Displacements and \sigma_{11}')
 colorbar('vert')
+axis equal
 drawnow
 
 figure
@@ -172,6 +173,7 @@ trisurf(element4,physcoord(:,1)+dispcoord(:,1)*factor, physcoord(:,2)+dispcoord(
 view(0,90)
 title('Displacements and \sigma_{12}')
 colorbar('vert')
+axis equal
 drawnow
 
 figure
@@ -179,6 +181,7 @@ trisurf(element4,physcoord(:,1)+dispcoord(:,1)*factor, physcoord(:,2)+dispcoord(
 view(0,90)
 title('Displacements and \sigma_{22}')
 colorbar('vert')
+axis equal
 drawnow
 
 

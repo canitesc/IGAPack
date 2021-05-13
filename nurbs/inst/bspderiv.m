@@ -51,15 +51,15 @@ dc = zeros(mc,nc-1);                                 %   double **dctrl = vec2ma
                                                      %
 for i=0:nc-2                                         %   for (i = 0; i < nc-1; i++) {
    tmp = d / (k(i+d+2) - k(i+2));                    %     tmp = d / (k[i+d+1] - k[i+1]);
-   for j=0:mc-1                                      %     for (j = 0; j < mc; j++) {
-       dc(j+1,i+1) = tmp*(c(j+1,i+2) - c(j+1,i+1));  %       dctrl[i][j] = tmp * (ctrl[i+1][j] - ctrl[i][j]);
-   end                                               %     }
-end                                                  %   }
+   dc(1:mc,i+1) = tmp * (c(1:mc,i+2) - c(1:mc,i+1)); %     for (j = 0; j < mc; j++) {
+                                                     %       dctrl[i][j] = tmp * (ctrl[i+1][j] - ctrl[i][j]);
+end                                                  %     }
+                                                     %   }
                                                      %
 dk = zeros(1,nk-2);                                  %   j = 0;
-for i=1:nk-2                                         %   for (i = 1; i < nk-1; i++)
-   dk(i) = k(i+1);                                   %     dk[j++] = k[i];
-end                                                  %
+dk(1:nk-2) = k(2:nk-1);                              %   for (i = 1; i < nk-1; i++)
+                                                     %     dk[j++] = k[i];
+                                                     %
                                                      %   freevec2mat(dctrl);
                                                      %   freevec2mat(ctrl);
                                                      %

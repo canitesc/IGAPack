@@ -63,7 +63,7 @@ curve = nrbmak(coefs, knots);
 end
 
 %!demo
-%! crv = nrbtform(nrbrect(2,1), vecrotz(deg2rad(35)));
+%! crv = nrbtform(nrbrect(2,1), vecrotz(35*pi/180));
 %! nrbplot(crv,4);
 %! axis equal
 %! title('Construction and rotation of a rectangular curve.');

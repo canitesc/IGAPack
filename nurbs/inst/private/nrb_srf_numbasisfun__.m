@@ -7,6 +7,8 @@ function idx = nrb_srf_numbasisfun__ (points, nrb)
 %   COPYING for details.  This is free software, and you are welcome
 %   to distribute it under the conditions laid out in COPYING.
   
+  warning ('nrb_srf_numbasisfun__ is deprecated. Use nrbnumbasisfun, instead')
+
   m   = nrb.number(1)-1;
   n   = nrb.number(2)-1;
   

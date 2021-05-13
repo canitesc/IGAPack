@@ -21,7 +21,8 @@
 #include "low_level_functions.h"
 #include <iostream>
 
-octave_idx_type findspan(int n, int p, double u, const RowVector& U)
+octave_idx_type
+findspan (int n, int p, double u, const RowVector& U)
 
 // Find the knot span of the parametric point u. 
 //
@@ -70,12 +71,17 @@ Below is the original implementation from the NURBS Book
 {
   // FIXME : this implementation has linear, rather than log complexity
   int ret = 0;
-  while ((ret++ < n) && (U(ret) <= u)) {
-  };
+  
+  if (u > U.xelem (U.numel () - 1) || u < U.xelem (0))
+    error ("Value %g is outside the knot span", u);
+  else
+    while ((ret++ < n) && (U(ret) <= u)) { };
+
   return (ret-1);
 }
 
-void basisfun(int i, double u, int p, const RowVector& U, RowVector& N)
+void
+basisfun (int i, double u, int p, const RowVector& U, RowVector& N)
 
 // Basis Function. 
 //
@@ -300,17 +306,19 @@ int surfderivcpts (octave_idx_type n, octave_idx_type  p, const RowVector& U,
 	  octave_idx_type dd = (d-k) <= dv ? (d-k) : dv;
 	  Matrix temp (dd <= m ? (dd+1) : (m+1), m+1, 0.0);
 	  
-	  idxva (0) = idx_vector(k); idxva (1) = idx_vector(0);
+	  idxva (0) = idx_vector(k); idxva (1) = idx_vector(octave_idx_type(0));
 	  idxva (2) = idx_vector(i); idxva (3) = idx_vector(':');
 	  NDArray temp2 (pkl.index (idxva));
-	  curvederivcpts (m, q, V.extract (s1, V.length ()-1), temp2.squeeze (), dd, 0, s, temp);
+	  curvederivcpts (m, q, V.extract (s1, V.numel () - 1),
+                          temp2.squeeze (), dd, 0, s, temp);
 	  
 	  for (octave_idx_type l(1); l<=dd; l++)
 	    {
 
 	      for (octave_idx_type j(0); j<=s-l; j++)
 		{
-		  assert (k<idxa(0) && l<idxa(1) && i<idxa(2) && j<idxa(3));
+		  assert (k<idxa(0) && l<idxa(1)
+                          && i<idxa(2) && j<idxa(3));
 		  idxta (0) = k; idxta (1) = l;
 		  idxta (2) = i; idxta (3) = j;
 		  pkl(idxta) = temp (l, j);

@@ -5,8 +5,7 @@ function  plotPHTMeshIsoMP( PHTelem, controlPts, p, q )
 %supports multipatches
 
 %we define colors for up to 6 patches
-colorArray = {'blue', 'red', 'green', 'cyan', 'magenta', 'yellow'};
-
+colorArray = {'blue', 'red', 'green', 'cyan', 'magenta', 'black'};
 
 numPts = 11; %number of plot points to use on each edge
 uref = linspace(-1,1,numPts);
@@ -32,6 +31,8 @@ numPatches = length(PHTelem);
 for patchIndex = 1:numPatches
     for i=1:length(PHTelem{patchIndex})
         if isempty(PHTelem{patchIndex}(i).children)
+            % set the color index using remainder (patch index modulo 6)
+            colorIndex = rem(patchIndex-1, length(colorArray))+1;
             %determine the edges of the element in the physical space
             coord_south = zeros(numPts,2);
             coord_east = zeros(numPts,2);
@@ -43,31 +44,31 @@ for patchIndex = 1:numPatches
             cpts = controlPts{patchIndex}(nodes, 1:2);
             wgts = controlPts{patchIndex}(nodes, 3);
             
-            for j=1:numPts   
+            for j=1:numPts
                 %compute the points on the element south edge
                 N = squeeze(R(j,1,:));
                 NS = (PHTelem{patchIndex}(i).C(1:nument,:))*N;
                 NS = NS.*wgts;
                 w_sum = sum(NS);
                 NS = NS/w_sum;
-                                
+                
                 %compute the points on the element east edge
                 N = squeeze(R(numPts,j,:));
                 NE = (PHTelem{patchIndex}(i).C(1:nument,:))*N;
                 NE = NE.*wgts;
                 w_sum = sum(NE);
                 NE = NE/w_sum;
-
+                
                 %compute the points on the element north edge
-                N = squeeze(R(numPts-j+1,numPts,:));                                             
-                NN = (PHTelem{patchIndex}(i).C(1:nument,:))*N;  
+                N = squeeze(R(numPts-j+1,numPts,:));
+                NN = (PHTelem{patchIndex}(i).C(1:nument,:))*N;
                 NN = NN.*wgts;
                 w_sum = sum(NN);
                 NN = NN/w_sum;
-                                
+                
                 %compute the points on the element west edge
-                N = squeeze(R(1,numPts-j+1,:));                                  
-                NW = (PHTelem{patchIndex}(i).C(1:nument,:))*N;                       
+                N = squeeze(R(1,numPts-j+1,:));
+                NW = (PHTelem{patchIndex}(i).C(1:nument,:))*N;
                 NW = NW.*wgts;
                 w_sum = sum(NW);
                 NW = NW/w_sum;
@@ -81,12 +82,12 @@ for patchIndex = 1:numPatches
             %plot the edges of the element
             coords = [coord_south; coord_east; coord_north; coord_west];
             
-            line(coords(:,1), coords(:,2), 'Color', colorArray{patchIndex})
+            line(coords(:,1), coords(:,2), 'Color', colorArray{colorIndex})
             
-%                         %write the element number in the middle
-%                         coord_mid = mean((coord_south+coord_east+coord_north+coord_west)/4);
+%             %write the element number in the middle
+%             coord_mid = mean((coord_south+coord_east+coord_north+coord_west)/4);
 %             
-%                         text(coord_mid(1), coord_mid(2), num2str(i), 'Color', colorArray{patchIndex})
+%             text(coord_mid(1), coord_mid(2), [num2str(patchIndex), ",", num2str(i)], 'Color', colorArray{colorIndex})
         end
     end
 end

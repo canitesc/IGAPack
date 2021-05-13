@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 Carlo de Falco
+/* Copyright (C) 2009, 2020 Carlo de Falco, Rafael Vazquez
   
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -42,6 +42,9 @@ DEFUN_DLD(bspderiv, args, nargout,"\n\
   //if (bspderiv_bad_arguments(args, nargout)) 
   //  return octave_value_list(); 
   
+  if ((nargout != 1 && nargout != 2) || args.length () != 3)
+    print_usage ();
+
   int       d = args(0).int_value();
   const Matrix    c = args(1).matrix_value();
   const RowVector k = args(2).row_vector_value();
@@ -50,24 +53,21 @@ DEFUN_DLD(bspderiv, args, nargout,"\n\
   Matrix dc (mc, nc-1, 0.0);
   RowVector dk(nk-2, 0.0);
 
-  if (!error_state)
-    {      
-      double tmp;
+  double tmp;
       
-      for (octave_idx_type i(0); i<=nc-2; i++)
-	{
-	  tmp = (double)d / (k(i+d+1) - k(i+1));
-	  for ( octave_idx_type j(0); j<=mc-1; j++)
-	    dc(j,i) = tmp*(c(j,i+1) - c(j,i));        
-	}
-      
-      for ( octave_idx_type i(1); i <= nk-2; i++)
-	dk(i-1) = k(i);
-      
-      if (nargout>1)
-	retval(1) = octave_value(dk);
-      retval(0) = octave_value(dc);
+  for (octave_idx_type i(0); i<=nc-2; i++)
+    {
+      tmp = (double)d / (k(i+d+1) - k(i+1));
+      for ( octave_idx_type j(0); j<=mc-1; j++)
+        dc(j,i) = tmp*(c(j,i+1) - c(j,i));        
     }
+      
+  for ( octave_idx_type i(1); i <= nk-2; i++)
+    dk(i-1) = k(i);
+      
+  if (nargout>1)
+    retval(1) = octave_value(dk);
+    retval(0) = octave_value(dc);
 
   return(retval);
 }

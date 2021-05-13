@@ -25,7 +25,7 @@ elseif strcmp(position, 'up_right')
 elseif strcmp(position, 'up_left')
     index = (deg(1)+1)*deg(2)+1;
 else
-    error("Wrong position given")
+    error('Wrong position given')
 end
 
 

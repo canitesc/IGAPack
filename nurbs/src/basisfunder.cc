@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 Carlo de Falco
+/* Copyright (C) 2009, 2020 Carlo de Falco, Rafael Vazquez
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -42,30 +42,31 @@ DEFUN_DLD(basisfunder, args, nargout,"\n\
 {
   octave_value_list retval;
 
+  if (nargout != 1 || args.length () != 5)
+    print_usage ();
+
   const NDArray i = args(0).array_value ();
   int pl = args(1).int_value ();
   const NDArray u = args(2).array_value ();
   const RowVector U = args(3).row_vector_value ();
   int nd = args(4).int_value ();
 
-  if (!error_state)
-    {
-      if (i.length () != u.length ())
-	print_usage ();
+  if (i.numel () != u.numel ())
+    print_usage ();
  
-      NDArray dersv (dim_vector (i.length (), nd+1, pl+1), 0.0);
-      NDArray ders(dim_vector(nd+1, pl+1), 0.0);
-      for ( octave_idx_type jj(0); jj < i.length (); jj++)
-	{
-	  basisfunder (int (i(jj)), pl, u(jj), U, nd, ders);
+  NDArray dersv (dim_vector (i.numel (), nd+1, pl+1), 0.0);
+  NDArray ders(dim_vector(nd+1, pl+1), 0.0);
+  for ( octave_idx_type jj(0); jj < i.numel (); jj++)
+    {
+      basisfunder (int (i(jj)), pl, u(jj), U, nd, ders);
 
-	  for (octave_idx_type kk(0); kk < nd+1; kk++)
-	    for (octave_idx_type ll(0); ll < pl+1; ll++)
-	      {
-		dersv(jj, kk, ll) = ders(kk, ll);
-	      }
-	}
-      retval(0) = dersv;
+      for (octave_idx_type kk(0); kk < nd+1; kk++)
+        for (octave_idx_type ll(0); ll < pl+1; ll++)
+          {
+            dersv(jj, kk, ll) = ders(kk, ll);
+          }
     }
+  retval(0) = dersv;
+
   return retval;
 }

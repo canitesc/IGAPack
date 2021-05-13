@@ -1,10 +1,10 @@
-function nvec = vecnorm(vec)
+function nvec = vecnormalize(vec)
 % 
-% VECNORM: Normalise the vectors.
+% VECNORMALIZE: Normalize the vectors.
 % 
 % Calling Sequence:
 % 
-%   nvec = vecnorn(vec);
+%   nvec = vecnormalize(vec);
 % 
 % INPUT:
 % 
@@ -14,17 +14,17 @@ function nvec = vecnorm(vec)
 %
 % OUTPUT:
 % 
-%   nvec		: Normalised vectors, matrix the smae size as vec.
+%   nvec		: Normalized vectors, matrix the same size as vec.
 % 
 % Description:
 % 
-%   Normalises the array of vectors, returning the unit vectors.
+%   Normalizes the array of vectors, returning the unit vectors.
 % 
 % Examples:
 % 
-%   Normalise the two vectors (0.0,2.0,1.3) and (1.5,3.4,2.3)
+%   Normalize the two vectors (0.0,2.0,1.3) and (1.5,3.4,2.3)
 %
-%   nvec = vecnorm([0.0 1.5; 2.0 3.4; 1.3 2.3]);
+%   nvec = vecnormalize([0.0 1.5; 2.0 3.4; 1.3 2.3]);
 %
 %    Copyright (C) 2000 Mark Spink
 %

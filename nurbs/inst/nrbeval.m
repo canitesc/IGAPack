@@ -56,7 +56,7 @@ function [p,w] = nrbeval(nurbs,tt)
 %
 % Copyright (C) 2000 Mark Spink 
 % Copyright (C) 2010 Carlo de Falco
-% Copyright (C) 2010, 2011 Rafael Vazquez
+% Copyright (C) 2010, 2011, 2015 Rafael Vazquez
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
@@ -136,6 +136,10 @@ if (iscell(nurbs.knots))
       %% tt(3,:) represents the w direction
 
       st = size(tt);
+      if (st(1) ~= 3 && st(2) == 3 && numel(st) == 2)
+        tt = tt';
+        st = size (tt);
+      end
       nt = prod(st(2:end));
 
       tt = reshape (tt, [3, nt]);
@@ -212,6 +216,10 @@ if (iscell(nurbs.knots))
       %% tt(2,:) represents the v direction
 
       st = size(tt);
+      if (st(1) ~= 2 && st(2) == 2 && numel(st) == 2)
+        tt = tt';
+        st = size (tt);
+      end
       nt = prod(st(2:end));
 
       tt = reshape (tt, [2, nt]);
@@ -247,6 +255,10 @@ else
   %% NURBS structure represents a curve
   %%  tt represent a vector of parametric points in the u direction
 
+  if (iscell (tt) && numel (tt) == 1)
+    tt = cell2mat (tt);
+  end
+  
   st = size (tt);
   
   val = bspeval(nurbs.order-1,nurbs.coefs,nurbs.knots,tt(:)');

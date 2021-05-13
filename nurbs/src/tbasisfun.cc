@@ -1,5 +1,5 @@
 /* Copyright (C) 2009 Carlo de Falco
-   Copyright (C) 2012 Rafael Vazquez
+   Copyright (C) 2012, 2020 Rafael Vazquez
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -69,19 +69,19 @@ void onebasisfun__ (double u, octave_idx_type p, RowVector U, double *N)
     }
  
   double ln = u - U(0);
-  double ld = U(U.length () - 2) - U(0);
+  double ld = U(U.numel () - 2) - U(0);
   if (ld != 0)
     {
       double tmp;
-      onebasisfun__ (u, p-1, U.extract (0, U.length () - 2), &tmp);
+      onebasisfun__ (u, p-1, U.extract (0, U.numel () - 2), &tmp);
       *N += ln * tmp / ld; 
     }
-  double dn = U(U.length () - 1) - u;
-  double dd = U(U.length () - 1) - U(1);
+  double dn = U(U.numel () - 1) - u;
+  double dd = U(U.numel () - 1) - U(1);
   if (dd != 0)
     {
       double tmp;
-      onebasisfun__ (u, p-1, U.extract (1, U.length () - 1), &tmp);
+      onebasisfun__ (u, p-1, U.extract (1, U.numel () - 1), &tmp);
       *N += dn * tmp / dd;
     }
   return;
@@ -104,22 +104,22 @@ void onebasisfunder__ (double u, octave_idx_type p, RowVector U, double *N, doub
     }  
   else {    
     double ln = u - U(0);
-    double ld = U(U.length () - 2) - U(0);
+    double ld = U(U.numel () - 2) - U(0);
 
     if (ld != 0)
       {
-        onebasisfun__ (u, p-1, U.extract (0, U.length () - 2), &aux);
+        onebasisfun__ (u, p-1, U.extract (0, U.numel () - 2), &aux);
         aux = aux / ld;
         *N += ln * aux;
         *Nder += p * aux;
       }
     
-    double dn = U(U.length () - 1) - u;
-    double dd = U(U.length () - 1) - U(1);
+    double dn = U(U.numel () - 1) - u;
+    double dd = U(U.numel () - 1) - U(1);
 
     if (dd != 0)
       { 
-        onebasisfun__ (u, p-1, U.extract (1, U.length () - 1), &aux);
+        onebasisfun__ (u, p-1, U.extract (1, U.numel () - 1), &aux);
         aux = aux / dd;
         *N    += dn *aux;
         *Nder -= p * aux;
@@ -156,7 +156,7 @@ TBASISFUN: Compute a B- or T-Spline basis function, and its derivatives, from it
   RowVector N(u.cols ());
   double *Nptr = N.fortran_vec ();
 
-  if (! args(2).is_cell ())
+  if (! args(2).iscell ())
     {
 
       double p = args(1).idx_type_value ();
@@ -181,7 +181,7 @@ TBASISFUN: Compute a B- or T-Spline basis function, and its derivatives, from it
   else 
     {
       RowVector p = args(1).row_vector_value ();
-      if (p.length() == 2) 
+      if (p.numel () == 2) 
         {
           Cell C = args(2).cell_value ();
           RowVector U = C(0).row_vector_value (true, true);
@@ -215,7 +215,7 @@ TBASISFUN: Compute a B- or T-Spline basis function, and its derivatives, from it
             }
         
         } 
-      else if (p.length() == 3) 
+      else if (p.numel () == 3) 
         {
           Cell C = args(2).cell_value ();
           RowVector U = C(0).row_vector_value (true, true);

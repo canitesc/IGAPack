@@ -150,6 +150,7 @@ trisurf(element4,physcoord(:,1)+dispcoord(:,1)*factor, physcoord(:,2)+dispcoord(
 view(0,90)
 title('Displacements and \sigma_{11}')
 colorbar('vert')
+axis equal
 drawnow
 
 figure
@@ -157,6 +158,7 @@ trisurf(element4,physcoord(:,1)+dispcoord(:,1)*factor, physcoord(:,2)+dispcoord(
 view(0,90)
 title('Displacements and \sigma_{12}')
 colorbar('vert')
+axis equal
 drawnow
 
 figure
@@ -164,6 +166,7 @@ trisurf(element4,physcoord(:,1)+dispcoord(:,1)*factor, physcoord(:,2)+dispcoord(
 view(0,90)
 title('Displacements and \sigma_{22}')
 colorbar('vert')
+axis equal
 drawnow
 
 

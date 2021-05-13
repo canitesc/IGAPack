@@ -8,6 +8,8 @@
 %   COPYING for details.  This is free software, and you are welcome
 %   to distribute it under the conditions laid out in COPYING.
 
+    warning ('nrb_crv_basisfunder__ is deprecated. Use nrbbasisfunder, instead')
+    
     n    = size (nrb.coefs, 2) -1;
     p    = nrb.order -1;
     u    = points;

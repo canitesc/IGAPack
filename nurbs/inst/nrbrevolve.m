@@ -98,7 +98,7 @@ end
 T  = vectrans(-pnt);
 angx = vecangle(vec(1),vec(3));
 RY = vecroty(-angx);
-vectmp = RY*[vecnorm(vec(:));1.0];
+vectmp = RY*[vecnormalize(vec(:));1.0];
 angy = vecangle(vectmp(2),vectmp(3));
 RX = vecrotx(angy);
 curve = nrbtform(curve,RX*RY*T);
@@ -156,7 +156,7 @@ end
 %!         0.5 1.5 4.5 3.0 7.5 6.0 8.5];
 %! crv = nrbmak(pnts,[0 0 0 1/4 1/2 3/4 3/4 1 1 1]);
 %! 
-%! xx = vecrotz(deg2rad(25))*vecroty(deg2rad(15))*vecrotx(deg2rad(20));
+%! xx = vecrotz(25*pi/180)*vecroty(15*pi/180)*vecrotx(20*pi/180);
 %! nrb = nrbtform(crv,vectrans([5 5])*xx);
 %!
 %! pnt = [5 5 0]';

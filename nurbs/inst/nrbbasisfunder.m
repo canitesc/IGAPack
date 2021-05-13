@@ -9,14 +9,18 @@ function varargout = nrbbasisfunder (points, nrb)
 %   [Bu, Bv]    = nrbbasisfunder ({u, v}, srf)
 %   [Bu, Bv, N] = nrbbasisfunder ({u, v}, srf)
 %   [Bu, Bv, N] = nrbbasisfunder (pts, srf)
+%   [Bu, Bv, Bw, N] = nrbbasisfunder ({u, v, w}, vol)
+%   [Bu, Bv, Bw, N] = nrbbasisfunder (pts, vol)
 %
 %    INPUT:
 %   
 %      u   - parametric coordinates along u direction
 %      v   - parametric coordinates along v direction
-%      pts - array of scattered points in parametric domain, array size: (2,num_points)
+%      w   - parametric coordinates along w direction
+%      pts - array of scattered points in parametric domain, array size: (ndim,num_points)
 %      crv - NURBS curve
 %      srf - NURBS surface
+%      vol - NURBS volume
 %
 %    If the parametric coordinates are given in a cell-array, the values
 %     are computed in a tensor product set of points
@@ -24,17 +28,19 @@ function varargout = nrbbasisfunder (points, nrb)
 %    OUTPUT:
 %   
 %      Bu - Basis functions derivatives WRT direction u
-%           size(Bu)=[numel(u),(p+1)] for curves
-%           or [numel(u)*numel(v), (p+1)*(q+1)] for surfaces
+%           size(Bu)=[npts, prod(nrb.order)]
 %
 %      Bv - Basis functions derivatives WRT direction v
-%           size(Bv)=[numel(v),(p+1)] for curves
-%           or [numel(u)*numel(v), (p+1)*(q+1)] for surfaces
+%           size(Bv) == size(Bu)
+%
+%      Bw - Basis functions derivatives WRT direction w
+%           size(Bw) == size(Bu)
 %
 %      N - Indices of the basis functions that are nonvanishing at each
-%          point. size(N) == size(B)
+%          point. size(N) == size(Bu)
 %   
 %    Copyright (C) 2009 Carlo de Falco
+%    Copyright (C) 2016 Rafael Vazquez
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
@@ -51,33 +57,110 @@ function varargout = nrbbasisfunder (points, nrb)
 
   
   if (   (nargin<2) ...
-      || (nargout>3) ...
+      || (nargout>4) ...
       || (~isstruct(nrb)) ...
       || (iscell(points) && ~iscell(nrb.knots)) ...
-      || (~iscell(points) && iscell(nrb.knots) && (size(points,1)~=2)) ...
+      || (~iscell(points) && iscell(nrb.knots) && (size(points,1)~=numel(nrb.number))) ...
       || (~iscell(nrb.knots) && (nargout>2)) ...
+      || iscell(points) && numel(points) ~= numel(nrb.number) ...
       )
-    error('Incorrect input arguments in nrbbasisfun');
+    error('Incorrect input arguments in nrbbasisfunder');
   end
-                            
-  if (~iscell(nrb.knots))         %% NURBS curve
-    
-    [varargout{1}, varargout{2}] = nrb_crv_basisfun_der__ (points, nrb);
 
-  elseif size(nrb.knots,2) == 2 %% NURBS surface
-
-    if (iscell(points))
-      [v, u] = meshgrid(points{2}, points{1});
-      p = [u(:), v(:)]';
+  if (~iscell (nrb.knots)) %% NURBS curve
+    knt = {nrb.knots};
+  else                     %% NURBS surface or volume
+    knt = nrb.knots;
+  end
+  
+  ndim = numel (nrb.number);
+  w = reshape (nrb.coefs(4,:), [nrb.number 1]);
+  
+  for idim = 1:ndim
+    if (iscell (points))
+      pts_dim = points{idim};
     else
-      p = points;
+      pts_dim = points(idim,:);
     end
-    
-    [varargout{1}, varargout{2}, varargout{3}] = nrb_srf_basisfun_der__ (p, nrb);
-
-  else                            %% NURBS volume
-    error('The function nrbbasisfunder is not yet ready for volumes')
+    sp{idim} = findspan (nrb.number(idim)-1, nrb.order(idim)-1, pts_dim, knt{idim});
+    Nprime = basisfunder (sp{idim}, nrb.order(idim)-1, pts_dim, knt{idim}, 1);
+    N{idim} = reshape (Nprime(:,1,:), numel(pts_dim), nrb.order(idim));
+    Nder{idim} = reshape (Nprime(:,2,:), numel(pts_dim), nrb.order(idim));
+    num{idim} = numbasisfun (sp{idim}, pts_dim, nrb.order(idim)-1, knt{idim}) + 1;
   end
+
+  if (ndim == 1)
+    B1 = reshape (w(num{1}), size(N{1})) .* N{1};
+    W = sum (B1, 2);
+    B2 = reshape (w(num{1}), size(N{1})) .* Nder{1};
+    Wder = sum (B2, 2);
+
+    B2 = bsxfun (@(x,y) x./y, B2, W);
+    B1 = bsxfun (@(x,y) x.*y, B1, Wder./W.^2);
+    B = B2 - B1;
+    varargout{1} = B;
+    varargout{2} = num{1};
+  else
+    id = nrbnumbasisfun (points, nrb);
+    if (iscell (points))
+      npts_dim = cellfun (@numel, points);
+      npts = prod (npts_dim);
+      val_aux = 1;
+      val_ders = repmat ({1}, ndim, 1);
+      for idim = 1:ndim
+        val_aux = kron (N{idim}, val_aux);        
+        for jdim = 1:ndim
+          if (idim == jdim)
+            val_ders{idim} = kron(Nder{jdim}, val_ders{idim});
+          else
+            val_ders{idim} = kron(N{jdim}, val_ders{idim});
+          end
+        end
+      end
+      
+      B1 = w(id) .* reshape (val_aux, npts, prod(nrb.order));
+      W = sum (B1, 2);
+      for idim = 1:ndim
+        B2 = w(id) .* reshape (val_ders{idim}, npts, prod(nrb.order));
+        Wder = sum (B2, 2);        
+        varargout{idim} = bsxfun (@(x,y) x./y, B2, W) - bsxfun (@(x,y) x.*y, B1, Wder ./ W.^2);
+      end
+    else
+      npts = numel (points(1,:));
+      B = zeros (npts, prod(nrb.order));
+      Bder = repmat ({B}, ndim, 1);
+
+      for ipt = 1:npts
+        val_aux = 1;
+        val_ders = repmat ({1}, ndim, 1);
+        for idim = 1:ndim
+          val_aux = reshape (val_aux.' * N{idim}(ipt,:), 1, []);
+%           val_aux = kron (N{idim}(ipt,:), val_aux);
+          for jdim = 1:ndim
+            if (idim == jdim)
+              val_ders{idim} = reshape (val_ders{idim}.' * Nder{jdim}(ipt,:), 1, []);
+            else
+              val_ders{idim} = reshape (val_ders{idim}.' * N{jdim}(ipt,:), 1, []);
+            end
+          end
+        end
+        wval = reshape (w(id(ipt,:)), size(val_aux));
+        val_aux = val_aux .* wval;
+        W = sum (val_aux);
+        for idim = 1:ndim
+          val_ders{idim} = val_ders{idim} .* wval;
+          Wder = sum (val_ders{idim});
+          Bder{idim}(ipt,:) = bsxfun (@(x,y) x./y, val_ders{idim}, W) - bsxfun (@(x,y) x.*y, val_aux, Wder ./ W.^2);
+        end
+      end
+      varargout(1:ndim) = Bder(1:ndim);
+    end
+    if (nargout > ndim)
+      varargout{ndim+1} = id;
+    end
+      
+  end
+  
 end
   
 %!demo

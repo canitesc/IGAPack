@@ -49,7 +49,7 @@ if (iscell(nrb.knots))
   end
   for ii = idir
     nrb.knots{ii} = sort (nrb.knots{ii}(end) - nrb.knots{ii});
-    nrb.coefs = flipdim (nrb.coefs, ii+1);
+    nrb.coefs = flip (nrb.coefs, ii+1);
   end
 
 else

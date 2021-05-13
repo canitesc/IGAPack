@@ -1,4 +1,4 @@
-/* Copyright (C) 2009 Carlo de Falco
+/* Copyright (C) 2009, 2020 Carlo de Falco
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -91,87 +91,87 @@ DEFUN_DLD(nrbsurfderiveval, args, nargout,"\
   //function skl = nrbsurfderiveval (srf, uv, d) 
   octave_value_list retval;
 
+  if (nargout != 1 || args.length () != 3)
+    print_usage ();
+    
   octave_scalar_map srf = args(0).scalar_map_value();
   Matrix            uv = args(1).matrix_value ();
   octave_idx_type   d = args(2).idx_type_value ();
 
-  if (! error_state)
+  Array<octave_idx_type> idxta (dim_vector (4, 1), 0);
+  dim_vector idxa; idxa.resize (4);
+  idxa(0) = 3; idxa(1) = d+1; 
+  idxa(2) = d+1; idxa(3) = uv.columns (); 
+  NDArray skl (idxa, 0.0);
+      
+  octave_idx_type n = octave_idx_type 
+    ((srf.contents("number").row_vector_value())(0) - 1);
+  octave_idx_type m = octave_idx_type 
+    ((srf.contents("number").row_vector_value())(1) - 1);
+  octave_idx_type p = octave_idx_type 
+    ((srf.contents("order").row_vector_value())(0) - 1);
+  octave_idx_type q = octave_idx_type 
+    ((srf.contents("order").row_vector_value())(1) - 1);
+      
+  Cell knots = srf.contents("knots").cell_value();
+  RowVector knotsu = knots.elem (0).row_vector_value ();
+  RowVector knotsv = knots.elem (1).row_vector_value ();
+      
+  NDArray coefs  = srf.contents("coefs").array_value();
+      
+  Array<idx_vector> idx(dim_vector (3, 1), idx_vector(':'));	 
+  idx (0) = idx_vector (octave_idx_type(3));
+  Matrix weights (NDArray (coefs.index (idx).squeeze ()));
+
+  for (octave_idx_type iu(0); iu<uv.cols (); iu++)
     {
-      Array<octave_idx_type> idxta (dim_vector (4, 1), 0);
-      dim_vector idxa; idxa.resize (4);
-      idxa(0) = 3; idxa(1) = d+1; 
-      idxa(2) = d+1; idxa(3) = uv.columns (); 
-      NDArray skl (idxa, 0.0);
-      
-      octave_idx_type n = octave_idx_type 
-	((srf.contents("number").row_vector_value())(0) - 1);
-      octave_idx_type m = octave_idx_type 
-	((srf.contents("number").row_vector_value())(1) - 1);
-      octave_idx_type p = octave_idx_type 
-	((srf.contents("order").row_vector_value())(0) - 1);
-      octave_idx_type q = octave_idx_type 
-	((srf.contents("order").row_vector_value())(1) - 1);
-      
-      Cell knots = srf.contents("knots").cell_value();
-      RowVector knotsu = knots.elem (0).row_vector_value ();
-      RowVector knotsv = knots.elem (1).row_vector_value ();
-      
-      NDArray coefs  = srf.contents("coefs").array_value();
-      
-      Array<idx_vector> idx(dim_vector (3, 1), idx_vector(':'));	 
-      idx (0) = idx_vector (3);
-      Matrix weights (NDArray (coefs.index (idx).squeeze ()).matrix_value ());
-
-      for (octave_idx_type iu(0); iu<uv.cols (); iu++)
-	{
 	  
-	  Matrix wders;
-	  surfderiveval (n, p, knotsu, m, q, knotsv, weights, uv(0,iu), uv(1,iu), d, wders);      
+      Matrix wders;
+      surfderiveval (n, p, knotsu, m, q, knotsv, weights, uv(0,iu), uv(1,iu), d, wders);      
 	  
-	  for (octave_idx_type idim (0); idim<=2; idim++)
-	    {
+      for (octave_idx_type idim (0); idim<=2; idim++)
+        {
 
-	      Matrix Aders; idx(0) = idx_vector (idim);
-	      Matrix P (NDArray (coefs.index (idx).squeeze ()).matrix_value ());
-	      surfderiveval (n, p, knotsu, m, q, knotsv, P, uv(0,iu), uv(1,iu), d, Aders);;      
+          Matrix Aders; idx(0) = idx_vector (idim);
+          Matrix P (NDArray (coefs.index (idx).squeeze ()));
+          surfderiveval (n, p, knotsu, m, q, knotsv, P, uv(0,iu), uv(1,iu), d, Aders);;      
 	      
-	      for (octave_idx_type k(0); k<=d; k++)
-		{
-		  for (octave_idx_type l(0); l<=d-k; l++)
-		    {
-		      assert (k < Aders.rows () && l < Aders.cols ());
-		      double v = Aders(k, l);
-		      for (octave_idx_type j(1); j<=l; j++)
-			{
-			  assert (idim<idxa(0) && k<idxa(1) && l<idxa(2) && iu<idxa(3));
-			  idxta(0) = idim; idxta(1) = k; idxta(2) = l-j; idxta(3) = iu;
-			  assert (j < wders.cols ());
-			  v -= bincoeff(l,j) * wders(0,j) * skl(idxta);
-			}
-		      for (octave_idx_type i(1); i<=k; i++)
-			{
-			  assert (idim<idxa(0) && k-i<idxa(1) && l<idxa(2) && iu<idxa(3));
-			  idxta(0) = idim; idxta(1) = k-i; idxta(2) = l; idxta(3) = iu;
-			  assert (i < wders.cols ());
-			  v -= bincoeff(k,i) * wders(i,0) * skl(idxta);
-			  double v2 = 0.0;
-			  for (octave_idx_type j(1);j<=l;j++)
-			    {
-			      idxta(0) = idim; idxta(1) = k-i; idxta(2) = l-j; idxta(3) = iu;
-			      v2 += bincoeff(l,j) * wders(i,j) * skl(idxta);
-			    }
-			  v -= bincoeff(k,i) * v2;
-			}
+          for (octave_idx_type k(0); k<=d; k++)
+    	    {
+	      for (octave_idx_type l(0); l<=d-k; l++)
+	        {
+	          assert (k < Aders.rows () && l < Aders.cols ());
+	          double v = Aders(k, l);
+	          for (octave_idx_type j(1); j<=l; j++)
+	    	    {
 		      assert (idim<idxa(0) && k<idxa(1) && l<idxa(2) && iu<idxa(3));
-		      idxta(0) = idim; idxta(1) = k; idxta(2) = l; idxta(3) = iu;
-		      skl(idxta) = v/wders(0,0);
+		      idxta(0) = idim; idxta(1) = k; idxta(2) = l-j; idxta(3) = iu;
+		      assert (j < wders.cols ());
+		      v -= bincoeff(l,j) * wders(0,j) * skl(idxta);
 		    }
+   	          for (octave_idx_type i(1); i<=k; i++)
+		    {
+		      assert (idim<idxa(0) && k-i<idxa(1) && l<idxa(2) && iu<idxa(3));
+		      idxta(0) = idim; idxta(1) = k-i; idxta(2) = l; idxta(3) = iu;
+		      assert (i < wders.cols ());
+		      v -= bincoeff(k,i) * wders(i,0) * skl(idxta);
+		      double v2 = 0.0;
+		      for (octave_idx_type j(1);j<=l;j++)
+		        {
+		          idxta(0) = idim; idxta(1) = k-i; idxta(2) = l-j; idxta(3) = iu;
+		          v2 += bincoeff(l,j) * wders(i,j) * skl(idxta);
+		        }
+		      v -= bincoeff(k,i) * v2;
+		    }
+		  assert (idim<idxa(0) && k<idxa(1) && l<idxa(2) && iu<idxa(3));
+		  idxta(0) = idim; idxta(1) = k; idxta(2) = l; idxta(3) = iu;
+		  skl(idxta) = v/wders(0,0);
 		}
 	    }
-	  
-	} 
-      retval(0) = octave_value (skl);
-    }
+	}	  
+    } 
+  retval(0) = octave_value (skl);
+
   return retval;
 }
 /*

@@ -15,7 +15,7 @@ function [N, Nder] = tbasisfun (u, p, U)
 %  
 %  U or {U, V} : local knot vector
 %
-% p or [p q] : polynomial order of the basis function
+% p or [p q] : polynomial degree of the basis function
 %
 % OUTPUT:
 %

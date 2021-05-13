@@ -1,16 +1,18 @@
-function crvs = nrbextract(srf)
+function crvs = nrbextract(srf, sides)
 
 %
 % NRBEXTRACT: construct NURBS curves by extracting the boundaries of a NURBS surface, or NURBS surfaces by extracting the boundary of a NURBS volume.
-% It only works for geometries constructed with open knot vectors.
+% It only works for geometries constructed with open knot vectors. For a NURBS curve, 
+% it returns two structures with the the boundary knots and control points.
 % 
 % Calling Sequence:
 % 
-%   crvs = nrbextract(surf);
+%   crvs = nrbextract(surf, [sides]);
 % 
 % INPUT:
 % 
 %   surf        : NURBS surface or volume, see nrbmak.
+%   sides       : the list of boundary sides to be extracted
 % 
 % OUTPUT: 
 % 
@@ -29,7 +31,7 @@ function crvs = nrbextract(srf)
 %    5: W = 0 (only for volumes)
 %    6: W = 1 (only for volumes)
 %
-%    Copyright (C) 2010,2014 Rafael Vazquez
+%    Copyright (C) 2010,2014,2015 Rafael Vazquez
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
@@ -44,8 +46,22 @@ function crvs = nrbextract(srf)
 %    You should have received a copy of the GNU General Public License
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+if (nargin < 2)
+  if (~iscell (srf.knots))
+    ndim = 1;
+  else
+    ndim = numel(srf.knots);
+  end
+  sides = 1:2*ndim;
+end
+
 if (~iscell (srf.knots))
-  error('The boundary information is only extracted for NURBS surfaces or volumes');  
+  crvs(1).knots = srf.knots(1);
+  crvs(1).coefs = srf.coefs(:,1);
+  crvs(2).knots = srf.knots(end);
+  crvs(2).coefs = srf.coefs(:,end);
+  crvs = crvs(sides);
+  return
 end
 
 for idim = 1:numel(srf.knots)
@@ -70,7 +86,7 @@ if (numel (srf.knots) == 2)
     end
     crvs(bnd1) = nrbmak (coefs1, srf.knots{ind2});
     crvs(bnd2) = nrbmak (coefs2, srf.knots{ind2});
-  end
+  end  
 elseif (numel (srf.knots) == 3)
   for ind = 1:3
     inds = setdiff (1:3, ind);
@@ -92,5 +108,7 @@ elseif (numel (srf.knots) == 3)
 else
   error ('The entity is not a surface nor a volume')
 end
+
+crvs = crvs(sides);
 
 end

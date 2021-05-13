@@ -89,6 +89,15 @@ if nargin ~= 4
   error('Incorrect number of input arguments');
 end
 
+if (max (abs (nrbeval (u1, u1.knots(1)) - nrbeval (v1, v1.knots(1)))) > 1e-10 || ...
+    max (abs (nrbeval (u1, u1.knots(end)) - nrbeval (v2, v2.knots(1)))) > 1e-10 || ...
+    max (abs (nrbeval (u2, u2.knots(1)) - nrbeval (v1, v1.knots(end)))) > 1e-10 || ...
+    max (abs (nrbeval (u2, u2.knots(end)) - nrbeval (v2, v2.knots(end)))) > 1e-10)
+  error ('The four curves do not define a closed boundary')
+end
+
+
+
 r1 = nrbruled(u1, u2);
 r2 = nrbtransp(nrbruled(v1, v2));
 t  = nrb4surf(u1.coefs(:,1), u1.coefs(:,end), u2.coefs(:,1), u2.coefs(:,end));

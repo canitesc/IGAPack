@@ -1,11 +1,11 @@
-function nurbs = nrbmak(coefs,knots)
+function nurbs = nrbmak(coefs,knots,normalize)
 %
 % NRBMAK: Construct the NURBS structure given the control points
 %            and the knots.
 % 
 % Calling Sequence:
 % 
-%   nurbs   = nrbmak(cntrl,knots);
+%   nurbs   = nrbmak(cntrl,knots,[normalize]);
 % 
 % INPUT:
 % 
@@ -31,6 +31,9 @@ function nurbs = nrbmak(coefs,knots)
 %               For curve knots form a vector and for surfaces (volumes)
 %               the knots are stored by two (three) vectors for U and V (and W)
 %               in a cell structure {uknots vknots} ({uknots vknots wknots}).
+%
+%   normalize: if true, the knot vector is normalized to the interval [0, 1]. 
+%               Default value is false.
 %               
 % OUTPUT:
 % 
@@ -92,7 +95,7 @@ function nurbs = nrbmak(coefs,knots)
 %   plane = nrbmak(coefs,knots);
 %   nrbplot(plane, [2 2]);
 %
-%    Copyright (C) 2000 Mark Spink, 2010 Rafael Vazquez
+%    Copyright (C) 2000 Mark Spink, 2010-2018 Rafael Vazquez
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
@@ -107,6 +110,10 @@ function nurbs = nrbmak(coefs,knots)
 %    You should have received a copy of the GNU General Public License
 %    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+if (nargin < 3)
+  normalize = false;
+end
+
 nurbs = struct ('form', 'B-NURBS', 'dim', 4, 'number', [], 'coefs', [], ...
                 'knots', [], 'order', []);
 
@@ -114,7 +121,7 @@ nurbs.form   = 'B-NURBS';
 nurbs.dim    = 4;
 np = size(coefs);
 dim = np(1);
-if iscell(knots)
+if (iscell(knots) && (size(knots,2) > 1))
   if size(knots,2) == 3
    if (numel(np) == 3)
      np(4) = 1;
@@ -125,19 +132,22 @@ if iscell(knots)
    nurbs.number = np(2:4);
    if (dim < 4)
      nurbs.coefs = repmat([0.0 0.0 0.0 1.0]',[1 np(2:4)]);
-     nurbs.coefs(1:dim,:,:) = coefs;  
+     nurbs.coefs(1:dim,:,:,:) = coefs;  
    else
      nurbs.coefs = coefs;
    end
    uorder = size(knots{1},2)-np(2);
    vorder = size(knots{2},2)-np(3);
    worder = size(knots{3},2)-np(4);
-   uknots = sort(knots{1});
-   vknots = sort(knots{2});
-   wknots = sort(knots{3});
-%   uknots = (uknots-uknots(uorder))/(uknots(end-uorder+1)-uknots(uorder));
-%   vknots = (vknots-vknots(vorder))/(vknots(end-vorder+1)-vknots(vorder));
-%   wknots = (wknots-wknots(worder))/(wknots(end-worder+1)-wknots(worder));
+   if (normalize)
+     uknots = (uknots-uknots(uorder))/(uknots(end-uorder+1)-uknots(uorder));
+     vknots = (vknots-vknots(vorder))/(vknots(end-vorder+1)-vknots(vorder));
+     wknots = (wknots-wknots(worder))/(wknots(end-worder+1)-wknots(worder));
+   else
+     uknots = sort(knots{1});
+     vknots = sort(knots{2});
+     wknots = sort(knots{3});
+   end
    nurbs.knots = {uknots vknots wknots};
    nurbs.order = [uorder vorder worder];
 
@@ -153,17 +163,22 @@ if iscell(knots)
    end
    uorder = size(knots{1},2)-np(2);
    vorder = size(knots{2},2)-np(3);
-   uknots = sort(knots{1});
-   vknots = sort(knots{2});
-%   uknots = (uknots-uknots(uorder))/(uknots(end-uorder+1)-uknots(uorder));
-%   vknots = (vknots-vknots(vorder))/(vknots(end-vorder+1)-vknots(vorder));
+   if (normalize)
+     uknots = (uknots-uknots(uorder))/(uknots(end-uorder+1)-uknots(uorder));
+     vknots = (vknots-vknots(vorder))/(vknots(end-vorder+1)-vknots(vorder));
+   else
+     uknots = sort(knots{1});
+     vknots = sort(knots{2});
+   end
    nurbs.knots = {uknots vknots};
    nurbs.order = [uorder vorder];
    
   end
 
-else
-
+elseif(~iscell(knots) || (iscell(knots)&&(size(knots,2) == 1)) )
+  if iscell(knots)
+    knots = knots{1};
+  end
   % constructing a curve
   nurbs.number = np(2);
   if (dim < 4)
@@ -175,9 +190,18 @@ else
   order = size (knots,2) - np(2);
   nurbs.order = order;
   knots = sort(knots);
-%  nurbs.knots = (knots-knots(order))/(knots(end-order+1)-knots(order));
-  nurbs.knots = knots;
+  if (normalize)
+    nurbs.knots = (knots-knots(order))/(knots(end-order+1)-knots(order));
+  else
+    nurbs.knots = knots;
+  end
 
+end
+
+if (any(nurbs.order < 1))
+  error ('The knot sequence is too short, as it gives order<1 (degree<0)')
+elseif (any (nurbs.number-nurbs.order < 0))
+  error ('Not enough control points, or too long not sequence (nurbs.number < nurbs.order).')
 end
 
 end

@@ -7,7 +7,11 @@ function varargout = nrbdeval (nurbs, dnurbs, varargin)
 %     [pnt, jac] = nrbdeval (vol, dvol, {tu tv tw})
 %     [pnt, jac, hess] = nrbdeval (crv, dcrv, dcrv2, tt)
 %     [pnt, jac, hess] = nrbdeval (srf, dsrf, dsrf2, {tu tv})
-%     [pnt, jac, hess] = nrbdeval (vol, dvol, {tu tv tw})
+%     [pnt, jac, hess] = nrbdeval (vol, dvol, dvol2, {tu tv tw})
+%     [pnt, jac, hess, third_der] = nrbdeval (crv, dcrv, dcrv2, dcrv3, tt)
+%     [pnt, jac, hess, third_der] = nrbdeval (srf, dsrf, dsrf2, dsrf3, {tu tv})
+%     [pnt, jac, hess, third_der, fourth_der] = nrbdeval (crv, dcrv, dcrv2, dcrv3, dcrv4, tt)
+%     [pnt, jac, hess, third_der, fourth_der] = nrbdeval (srf, dsrf, dsrf2, dsrf3, dsrf4, {tu tv})
 %
 % INPUTS:
 %
@@ -16,6 +20,11 @@ function varargout = nrbdeval (nurbs, dnurbs, varargin)
 %                          or vol (see nrbderiv2)
 %   dcrv2, dsrf2, dvol2 - NURBS second derivative representation of crv,
 %                          srf or vol (see nrbderiv2)
+%   dcrv3, dsrf3, dvol3 - NURBS third derivative representation of crv,
+%                          srf or vol (see nrbderiv)
+%   dcrv4, dsrf4, dvol4 - NURBS fourth derivative representation of crv,
+%                          srf or vol (see nrbderiv)
+%
 %   tt     - parametric evaluation points
 %            If the nurbs is a surface or a volume then tt is a cell
 %            {tu, tv} or {tu, tv, tw} are the parametric coordinates
@@ -25,10 +34,13 @@ function varargout = nrbdeval (nurbs, dnurbs, varargin)
 %   pnt  - evaluated points.
 %   jac  - evaluated first derivatives (Jacobian).
 %   hess - evaluated second derivatives (Hessian).
+%   third_der - evaluated third derivatives
+%   fourth_der - evaluated fourth derivatives
 %
 % Copyright (C) 2000 Mark Spink 
 % Copyright (C) 2010 Carlo de Falco
 % Copyright (C) 2010, 2011 Rafael Vazquez
+% Copyright (C) 2018 Luca Coradello
 %
 %    This program is free software: you can redistribute it and/or modify
 %    it under the terms of the GNU General Public License as published by
@@ -48,6 +60,15 @@ if (nargin == 3)
 elseif (nargin == 4)
   dnurbs2 = varargin{1};
   tt = varargin{2};
+elseif (nargin == 5)
+  dnurbs2 = varargin{1};
+  dnurbs3 = varargin{2};       
+  tt = varargin{3}; 
+elseif (nargin == 6)
+  dnurbs2 = varargin{1};
+  dnurbs3 = varargin{2};
+  dnurbs4 = varargin{3};       
+  tt = varargin{4}; 
 else 
   error ('nrbrdeval: wrong number of input parameters')
 end
@@ -81,7 +102,7 @@ if (iscell(nurbs.knots))
     jac{3} = (cwp-tempw.*pnt)./temp;
 
 % second derivatives
-    if (nargout == 3)
+    if (nargout >= 3)
       if (exist ('dnurbs2'))
         [cuup, cuuw] = nrbeval (dnurbs2{1,1}, tt);
         tempuu = cuuw(ones(3,1),:,:,:);
@@ -119,6 +140,11 @@ if (iscell(nurbs.knots))
         warning ('nrbdeval: dnurbs2 missing. The second derivative is not computed');
         hess = [];
       end
+      if (nargout > 3)
+        warning ('nrbdeval: 3rd and 4th order derivatives not implemented for volumes');
+        third_der = [];
+        fourth_der = [];
+      end
     end
 
   elseif (size(nurbs.knots,2) == 2)
@@ -135,7 +161,7 @@ if (iscell(nurbs.knots))
     jac{2} = (cvp-tempv.*pnt)./temp;
 
 % second derivatives
-    if (nargout == 3) 
+    if (nargout >= 3) 
       if (exist ('dnurbs2'))
         [cuup, cuuw] = nrbeval (dnurbs2{1,1}, tt);
         tempuu = cuuw(ones(3,1),:,:);
@@ -154,7 +180,84 @@ if (iscell(nurbs.knots))
         hess = [];
       end
     end
+    if (nargout >= 4) 
+      if (exist ('dnurbs3'))
+        [cuuup, cuuuw] = nrbeval (dnurbs3{1,1,1}, tt);
+        tempuuu = cuuuw(ones(3,1),:,:);
+        third_der{1,1,1} = (cuuup - 3*jac{1}.*tempuu - cp.*tempuuu - 3*hess{1,1}.*tempu)./temp;
 
+        [cvvvp, cvvvw] = nrbeval (dnurbs3{2,2,2}, tt);
+        tempvvv = cvvvw(ones(3,1),:,:);
+        third_der{2,2,2} = (cvvvp - 3*jac{2}.*tempvv - cp.*tempvvv - 3*hess{2,2}.*tempv)./temp;
+        
+        [cuuvp, cuuvw] = nrbeval (dnurbs3{1,1,2}, tt);
+        tempuuv = cuuvw(ones(3,1),:,:);
+        third_der{1,1,2} = (cuuvp - 2*jac{1}.*tempuv - jac{2}.*tempuu - cp.*tempuuv - 2*hess{1,2}.*tempu - hess{1,1}.*tempv)./temp;
+        third_der{1,2,1} = third_der{1,1,2};
+        third_der{2,1,1} = third_der{1,1,2};
+  
+        [cuvvp, cuvvw] = nrbeval (dnurbs3{1,2,2}, tt);
+        tempuvv = cuvvw(ones(3,1),:,:);
+        third_der{1,2,2} = (cuvvp - 2*jac{2}.*tempuv - jac{1}.*tempvv - cp.*tempuvv - 2*hess{1,2}.*tempv - hess{2,2}.*tempu)./temp;
+        third_der{2,2,1} = third_der{1,2,2};
+        third_der{2,1,2} = third_der{1,2,2};
+        
+      else
+        warning ('nrbdeval: dnurbs3 missing. The third derivative is not computed');
+        third_der = [];
+      end
+    end
+
+    if (nargout == 5) 
+      if (exist ('dnurbs4'))
+        [cuuuup, cuuuuw] = nrbeval (dnurbs4{1,1,1,1}, tt);
+        tempuuuu = cuuuuw(ones(3,1),:,:);
+        fourth_der{1,1,1,1} = (cuuuup - cp.*tempuuuu - 4*jac{1}.*tempuuu -6*hess{1,1}.*tempuu - 4*third_der{1,1,1}.*tempu)./temp;
+
+        [cvvvvp, cvvvvw] = nrbeval (dnurbs4{2,2,2,2}, tt);
+        tempvvvv = cvvvvw(ones(3,1),:,:);
+        fourth_der{2,2,2,2} = (cvvvvp - cp.*tempvvvv - 4*jac{2}.*tempvvv -6*hess{2,2}.*tempvv - 4*third_der{2,2,2}.*tempv)./temp;
+
+        [cuuuvp, cuuuvw] = nrbeval (dnurbs4{1,1,1,2}, tt);
+        tempuuuv = cuuuvw(ones(3,1),:,:);
+        fourth_der{1,1,1,2} = (cuuuvp - cp.*tempuuuv - 3*jac{1}.*tempuuv - jac{2}.*tempuuu -3*hess{1,2}.*tempuu -3*hess{1,1}.*tempuv ...
+                                - third_der{1,1,1}.*tempv - 3*third_der{1,1,2}.*tempu)./temp;
+                            
+        fourth_der{1,1,2,1} = fourth_der{1,1,1,2};
+        fourth_der{1,2,1,1} = fourth_der{1,1,1,2};
+        fourth_der{2,1,1,1} = fourth_der{1,1,1,2};
+
+        [cuvvvp, cuvvvw] = nrbeval (dnurbs4{1,2,2,2}, tt);
+        tempuvvv = cuvvvw(ones(3,1),:,:);
+        fourth_der{1,2,2,2} = (cuvvvp - cp.*tempuvvv - 3*jac{2}.*tempuvv - jac{1}.*tempvvv -3*hess{1,2}.*tempvv -3*hess{2,2}.*tempuv ...
+                                - third_der{2,2,2}.*tempu - 3*third_der{1,2,2}.*tempv)./temp;
+                            
+        fourth_der{2,2,1,2} = fourth_der{1,2,2,2};
+        fourth_der{2,1,2,2} = fourth_der{1,2,2,2};
+        fourth_der{2,2,2,1} = fourth_der{1,2,2,2};
+
+        [cuuvvp, cuuvvw] = nrbeval (dnurbs4{1,1,2,2}, tt);
+        tempuuvv = cuuvvw(ones(3,1),:,:);
+        fourth_der{1,1,2,2} = (cuuvvp - cp.*tempuuvv - 2*jac{1}.*tempuvv - 2*jac{2}.*tempuuv -hess{1,1}.*tempvv -hess{2,2}.*tempuu ...
+                                -4*hess{1,2}.*tempuv - 2*third_der{1,1,2}.*tempv - 2*third_der{1,2,2}.*tempu)./temp;
+                            
+        fourth_der{1,2,2,1} = fourth_der{1,1,2,2};
+        fourth_der{2,2,1,1} = fourth_der{1,1,2,2};
+        fourth_der{1,2,1,2} = fourth_der{1,1,2,2};
+        fourth_der{2,1,2,1} = fourth_der{1,1,2,2};
+        fourth_der{2,1,1,2} = fourth_der{1,1,2,2};
+        
+        clear cuup cuuw tempuu cvvp cvvw tempvv cuvp cuvw tempuv
+        clear cuuup cuuuw tempuuu cvvvp cvvvw tempvvv cuuvp cuuvw tempuuv cuvvp cuvvw tempuvv
+        clear cuuuup cuuuuw tempuuuu cvvvvp cvvvvw tempvvvv cuuuvp cuuuvw tempuuuv cuuvvp cuuvvw tempuuvv cvvvup cvvvuw tempvvvu
+        
+      else
+        warning ('nrbdeval: dnurbs4 missing. The fourth derivative is not computed');
+        fourth_der = [];
+      end
+    end
+
+    
   end
 else
 
@@ -168,18 +271,52 @@ else
   jac = (cup-temp1.*pnt)./temp;
 
   % second derivative
-  if (nargout == 3 && exist ('dnurbs2'))
+  if (nargout >= 3 && exist ('dnurbs2'))
     [cuup,cuuw] = nrbeval (dnurbs2, tt);
     temp2 = cuuw(ones(3,1),:);
-    hess = (cuup - (2*cup.*temp1 + cp.*temp2)./temp + 2*cp.*temp1.^2./temp.^2)./temp;
-  end
+    hess = (cuup - (2*cup.*temp1 + cp.*temp2)./temp + 2*cp.*temp1.^2./temp.^2)./temp; 
+    if (nargout >= 4 && exist ('dnurbs3')) 
+    
+      [cuuup, cuuuw] = nrbeval (dnurbs3, tt);
+      temp3 = cuuuw(ones(3,1),:);
+      third_der = (cuuup - 3*jac.*temp2 - cp.*temp3 - 3*hess.*temp1)./temp;
+      if (nargout >= 5 && exist ('dnurbs4')) 
+    
+        [cuuuup, cuuuuw] = nrbeval (dnurbs4, tt);
+        temp4 = cuuuuw(ones(3,1),:);
+        fourth_der = (cuuuup - cp.*temp4 - 4*jac.*temp3 -6*hess.*temp2 - 4*third_der.*temp1)./temp;
+        if (iscell (tt))
+          fourth_der = {fourth_der};
+        end
 
+      end
+      
+      if (iscell (tt))
+        third_der = {third_der};
+      end      
+    end
+    
+    if (iscell (tt))
+      hess = {hess};
+    end    
+  end 
+  
+  if (iscell (tt))
+    jac = {jac};
+  end
+  
 end
 
 varargout{1} = pnt;
 varargout{2} = jac;
-if (nargout == 3)
+if (nargout >= 3)
   varargout{3} = hess;
+end
+if (nargout >= 4)
+  varargout{4} = third_der;
+end
+if (nargout == 5)
+  varargout{5} = fourth_der;
 end
 
 end
@@ -195,7 +332,7 @@ end
 %! 
 %! [p1, dp] = nrbdeval(crv,dcrv,tt);
 %! 
-%! p2 = vecnorm(dp);
+%! p2 = vecnormalize(dp);
 %! 
 %! hold on;
 %! plot(p1(1,:),p1(2,:),'ro');
@@ -216,8 +353,8 @@ end
 %! 
 %! [p1, dp] = nrbdeval(srf, dsrf, {tt, tt});
 %! 
-%! up2 = vecnorm(dp{1});
-%! vp2 = vecnorm(dp{2});
+%! up2 = vecnormalize(dp{1});
+%! vp2 = vecnormalize(dp{2});
 %! 
 %! hold on;
 %! plot3(p1(1,:),p1(2,:),p1(3,:),'ro');

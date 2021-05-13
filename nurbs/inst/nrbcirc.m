@@ -114,7 +114,7 @@ end
 
 %!demo
 %! for r = 1:9
-%! crv = nrbcirc(r,[],deg2rad(45),deg2rad(315));
+%! crv = nrbcirc(r,[],45*pi/180,315*pi/180);
 %!   nrbplot(crv,50);
 %!   hold on;
 %! end
