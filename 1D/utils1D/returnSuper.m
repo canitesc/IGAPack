@@ -1,0 +1,28 @@
+function [ up ] = returnSuper( p )
+%returns the superconvergent points in the reference interval [-1,1]
+
+fudge = 0;
+[~, up4] = quadrature(4, 'GAUSS', 1);
+[~, up5] = quadrature(5, 'GAUSS', 1);
+[~, up6] = quadrature(6, 'GAUSS', 1);
+switch p
+    
+    case 3
+        up = [-1+fudge, 0, 1-fudge];
+        %up = [-1/sqrt(3), 0, 1/sqrt(3)];
+    case 4
+        up = up4';
+    case 5
+        up = [-1, -sqrt(1/3), 0, sqrt(1/3), 1];
+    case 6
+        %up = [-.792, -0.276, 0.276, 0.792];
+        up = [-.790208564, -.2800702925, .2800702925, .790208564];
+    case 7
+        %up = [-1, -0.528, 0, 0.528, 1];
+        up = [-1, -.5294113738, 0, .5294113738, 1];
+    otherwise
+        disp('Invalid p')
+        up = [];
+end
+
+
