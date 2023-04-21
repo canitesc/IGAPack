@@ -1,15 +1,13 @@
 %script TestPlot1D.m
-% solve -u''(x) + a1(x)*u'(x) + a0(x)*u(x) = f(x), x \in (0, L), with Dirichlet boundary conditions
-% u(0) = a, u(1) = b;
-%
+% plot of basis functions before and after cross insertion
 %pre-processing
 
-clear all
+clear
 close all
 
-addpath ./utils1D
-addpath ./ExampleData
-addpath ../nurbs/inst
+addpath('./utils1D')
+addpath('./ExampleData')
+addpath('../nurbs/inst')
 
 GeoMesh = init1DGeometryBeam;
 
